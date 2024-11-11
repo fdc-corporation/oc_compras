@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_servidor_correo" model="ir.ui.view">
+        <field name="name">servidor.correo.form</field>
+        <field name="model">servidor.correos</field>
+        <field name="arch" type="xml">
+            
+            <form string="Servidores de correo">
+                <header>
+                    <button name="probar_conexion" string="Probar conexion" type="object" class="oe_highlight"  />
+                </header>
+                <sheet>
+                    
+                    <div class="oe_title">
+                        <label for="name"></label>
+                        <h1 style="display: flex; align-items: center;">
+                            <field name="name" style="width: auto;"/>
+                        </h1>
+                    </div>
+                    <group string="Datos del servidor">
+                        <group>
+                            <field name="creado_por"/>
+                            <field name="compania"/>  <!-- Updated field name -->
+                        </group>
+                        <group>
+                            <field name="fecha_solicitud"/>
+                            <field name="estado"/>
+                        </group>
+                    </group>
+                    <group >
+                        <group>
+                            <field name="correo"/>
+                            <field name="password"/>  <!-- Updated field name -->
+                        </group>
+                        <group>
+                            <field name="imap"/>
+                        </group>
+                    </group>
+                    
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de Árbol (Lista) para Orden de Compras -->
+    <record id="view_tree_servidores_correos" model="ir.ui.view">
+        <field name="name">servidores.correos.tree</field>
+        <field name="model">servidor.correos</field>
+        <field name="arch" type="xml">
+            <tree string="Servidores de Correos">
+                <field name="name" />
+                <field name="correo" />
+                <field name="imap" />
+                <field name="fecha_solicitud" />
+                <field name="creado_por" />
+                <field name="compania" />
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- Acción de Ventana -->
+    <record id="action_servidor_correos" model="ir.actions.act_window">
+        <field name="name">Servidores</field>
+        <field name="res_model">servidor.correos</field>
+        <field name="view_mode">tree,form</field>
+        
+    </record>
+
+    <!-- Menús -->
+    <menuitem id="oc_servidores" name="Servidores" parent="index_oc_compras_menu" action="action_servidor_correos" sequence="2"/>
+
+
+</odoo>

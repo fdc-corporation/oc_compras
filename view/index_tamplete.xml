@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Secuencia para Orden de Compras -->
+        <record id="seq_orden_compras" model="ir.sequence">
+            <field name="name">Secuencia para Orden de Compras</field>
+            <field name="code">oc.compras</field>
+            <field name="prefix">ORC/</field>
+            <field name="padding">5</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <!-- Vista de Formulario para Orden de Compras -->
+        <record id="view_oc_compras_form" model="ir.ui.view">
+            <field name="name">oc.compras.form</field>
+            <field name="model">oc.compras</field>
+            <field name="arch" type="xml">
+                <form string="Orden de Compras">
+                    <sheet>
+                        <header>
+                            <field name="state" widget="statusbar" options="{'clickable': '1'}" />
+                            <button name="create_cotizacion" string="Crear Cotización" type="object" class="oe_highlight"/>
+                        </header>
+                        <div class="oe_title">
+                            <label for="sequence"></label>
+                            <h1 style="display: flex; align-items: center;">
+                                <field name="sequence" readonly="1" style="width: auto;"/>
+                            </h1>
+                        </div>
+                        <group string="Datos del registro">
+                            <group>
+                                <field name="creado_por"/>
+                                <field name="compania"/>  <!-- Updated field name -->
+                                <field name="cliente" />
+                                <field name="oc" />
+                            </group>
+                            <group>
+                                <field name="fecha_solicitud"/>
+                                <field name="cotizacion_id"/>
+                                <field name="factura"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="correo" string="Datos de correo">
+                                <group >
+                                    <group>
+                                        <field name="de"/>
+                                    </group>
+                                    <!-- <group>
+                                        <field name="destino"/>
+                                    </group> -->
+                                </group>
+                                <group >
+                                    <field name="asunto"/>
+                                </group>
+                                <group >
+                                    <field name="body"/>                                
+                                </group>
+                            </page>
+                            <page string="Adjuntos">
+                                <group>
+                                    <field name="documentos">
+                                        <tree string="Lista de Adjuntos">
+                                            <field name="name" string="Nombre del archivo"/>
+                                            <field name="type" string="Tipo de archivo"/>
+                                            <field name="mimetype" string="Tipo de archivo"/>
+                                            <button name="download_file" type="object" string="Descargar archivo" />
+
+                                        </tree>
+                                    </field>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_oc_correctivo_kanban" model="ir.ui.view">
+            <field name="name">oc.compras.kanban</field>
+            <field name="model">oc.compras</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="state" class="o_kanban_view">
+                    <field name="sequence"/>
+                    <field name="state"/>
+                    <field name="creado_por"/>
+                    <templates>
+                        <t t-name="kanban-tooltip">
+                            <ul class="oe_kanban_tooltip">
+                                <li t-if="record.creado_por"><b>Creado por:</b> <t t-esc="record.creado_por.value"/></li>
+                            </ul>
+                        </t>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color ? record.color.raw_value : 0) : ''}} oe_kanban_card oe_kanban_global_click oe_semantic_html_override">
+                                <div class="o_dropdown_kanban dropdown">
+                                    <a role="button" class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" data-bs-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                        <span class="fa fa-ellipsis-v"/>
+                                    </a>
+                                    <div class="dropdown-menu" role="menu">
+                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Editar...</a></t>
+                                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Eliminar</a></t>
+                                        <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_content" tooltip="kanban-tooltip">
+                                    <div class="o_kanban_record_top">
+                                        <b class="o_kanban_record_title">
+                                            <field name="sequence"/>
+                                        </b>
+                                    </div>
+                                    <div class="o_kanban_record_body">
+                                        <span name="creado_por" t-if="record.creado_por">Creado por : <field name="creado_por"/><br/></span>
+                                    </div>
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <div class="o_kanban_inline_block ml4 mr4">
+                                                <!-- Agrega cualquier otro campo aquí si es necesario -->
+                                            </div>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="state" widget="selection"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="clearfix"/>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <!-- Vista de Árbol (Lista) para Orden de Compras -->
+        <record id="view_oc_compras_tree" model="ir.ui.view">
+            <field name="name">oc.compras.tree</field>
+            <field name="model">oc.compras</field>
+            <field name="arch" type="xml">
+                <tree string="Órdenes de Compras">
+                    <field name="sequence" string="Nº de Orden"/>
+                    <field name="compania" />
+                    <field name="fecha_solicitud" />
+                    <field name="creado_por" />
+                </tree>
+            </field>
+        </record>
+
+        <!-- Acción de Ventana -->
+        <record id="action_oc_compras" model="ir.actions.act_window">
+            <field name="name">Órdenes de Compras</field>
+            <field name="res_model">oc.compras</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_id" ref="view_oc_correctivo_kanban"/>            
+        </record>
+
+        <!-- Menús -->
+        <menuitem id="index_oc_compras_menu" name="Órdenes de Compras" web_icon="oc_compras,src/img/icono.png"  sequence="1"/>
+        <menuitem id="oc_compras_menu_view" name="Gestionar Órdenes de Compras" parent="index_oc_compras_menu" action="action_oc_compras" sequence="2"/>
+  
+    </data>
+</odoo>
