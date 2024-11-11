@@ -59,14 +59,15 @@
         </field>
     </record>
 
-
     <!-- Acción de Ventana -->
     <record id="action_servidor_correos" model="ir.actions.act_window">
         <field name="name">Servidores</field>
         <field name="res_model">servidor.correos</field>
         <field name="view_mode">tree,form</field>
-        
+        <field name="context">{'user_id': uid}</field>
+        <field name="domain">[('creado_por', '=', context.get('user_id'))]</field>
     </record>
+
 
     <!-- Menús -->
     <menuitem id="oc_servidores" name="Servidores" parent="index_oc_compras_menu" action="action_servidor_correos" sequence="2"/>
