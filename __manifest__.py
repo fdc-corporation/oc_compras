@@ -19,6 +19,7 @@
         'view/code/ir.cron.xml',
         'view/sale.xml',
     ],
+   
     'installable': True,
     'application': True,
     'auto_install': False,
