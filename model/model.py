@@ -103,7 +103,7 @@ class OrdenCompras(models.Model):
 
 
     def notificacion_facturar(self):
-        group = self.env.ref('oc_compras.estado_entrega_proceso')
+        group = self.env.ref('oc_compras.estado_guia_firmada_registrada')
         users = self.env['res.users'].search([('groups_id', 'in', group.id)])
         partners = users.mapped('partner_id')
         
@@ -138,7 +138,7 @@ class OrdenCompras(models.Model):
 
     def registrar_guia (self):
         if self.guia_id:
-            self.state = self.env.ref('oc_compras.estado_entrega_proceso', raise_if_not_found=False).id
+            self.state = self.env.ref('oc_compras.estado_guia_firmada_registrada', raise_if_not_found=False).id
 
     @api.model
     def _read_group_stage_ids(self, states, domain, order):

@@ -31,12 +31,12 @@
     </record>
     <record id="estado_guia_firmada_registrada" model="estado.orden">
         <field name="name">Guia firmada y registrada</field>
-        <field name="secuencia">9</field>
-    </record>
-    <record id="estado_entrega_proceso" model="estado.orden">
-        <field name="name">Entrega en Completada</field>
         <field name="secuencia">8</field>
     </record>
+    <!-- <record id="estado_entrega_proceso" model="estado.orden">
+        <field name="name">Entrega en Completada</field>
+        <field name="secuencia">8</field>
+    </record> -->
     <record id="estado_facturado" model="estado.orden">
         <field name="name">Facturado</field>
         <field name="secuencia">9</field>
@@ -49,8 +49,8 @@
         <field name="name">Etapa de Servicios</field>
         <field name="secuencia">11</field>
     </record>
-    <record id="estado_finalizado" model="estado.orden">
+    <!-- <record id="estado_finalizado" model="estado.orden">
         <field name="name">Finalizado</field>
         <field name="secuencia">12</field>
-    </record>
+    </record> -->
 </odoo>
