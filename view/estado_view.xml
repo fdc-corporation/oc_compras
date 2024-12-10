@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista de Árbol (Lista) para Orden de Compras -->
+        <record id="view_tree_estado_orden" model="ir.ui.view">
+            <field name="name">estado.orden.tree</field>
+            <field name="model">estado.orden</field>
+            <field name="arch" type="xml">
+                <tree string="Estados de la OC" editable="bottom">
+                    <field name="name" />
+                    <field name="secuencia" />
+                    <field name="fold" />
+                </tree>
+            </field>
+        </record>
+
+        <!-- Acción de Ventana -->
+        <record id="action_estado_orden" model="ir.actions.act_window">
+            <field name="name">Estados</field>
+            <field name="res_model">estado.orden</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_tree_estado_orden"/>
+        </record>
+
+        <!-- Menús -->
+        <menuitem id="menu_configuracion_oc" 
+                  groups="oc_compras.group_admin_orden"  
+                  name="Configuración" 
+                  parent="index_oc_compras_menu" 
+                  sequence="2"/>
+        <menuitem id="menu_estado_orden" 
+                  name="Estados de la orden" 
+                  parent="menu_configuracion_oc" 
+                  action="action_estado_orden" 
+                  sequence="10"/>
+    </data>
+</odoo>

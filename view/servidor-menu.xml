@@ -70,7 +70,7 @@
 
 
     <!-- Menús -->
-    <menuitem id="oc_servidores" name="Servidores" parent="index_oc_compras_menu" action="action_servidor_correos" sequence="2"/>
+    <menuitem id="oc_servidores" name="Servidores" parent="menu_configuracion_oc" action="action_servidor_correos" sequence="20"/>
 
 
 </odoo>

@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_oc_compras_user,access_oc_compras_user,model_oc_compras,base.group_user,1,1,1,1
 access_servidor_correos_user,access.servidor.correos.user,model_servidor_correos,base.group_user,1,1,1,1
+access_estado_orden_manager,access_estado_orden_manager,model_estado_orden,base.group_user,1,1,1,1

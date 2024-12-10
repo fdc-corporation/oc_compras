@@ -1,27 +1,31 @@
 {
-    'name': 'Gestor de Ordener de Compras',
+    'name': 'Gestor de Órdenes de Compras',
     'version': '1.0',
-    'description': 'Gestor de ordenes de compras',
-    'summary': '',
+    'description': 'Gestor de órdenes de compras para facilitar la administración y control de procesos.',
+    'summary': 'Módulo para gestión avanzada de órdenes de compra.',
     'author': 'Yostin Palacios',
-    'website': '',
+    'website': 'https://example.com',  # Cambia a tu sitio web si aplica
     'license': 'LGPL-3',
     'category': 'Sales',
     'depends': [
         'base',
         'sale',
-        'account'
+        'account',
+        'stock',
+        'purchase',
     ],
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
         'view/index_tamplete.xml',
+        'view/estado_view.xml',
         'view/servidor-menu.xml',
         'view/code/ir.cron.xml',
-        'view/sale.xml',
+        'view/herencia_view_iherit.xml',
+        'data/estados_data_oc.xml',
+
     ],
-   
     'installable': True,
     'application': True,
     'auto_install': False,
-    'license': 'LGPL-3', 
 }

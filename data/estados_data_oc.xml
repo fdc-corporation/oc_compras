@@ -1,0 +1,56 @@
+<odoo>
+    <record id="estado_nuevo" model="estado.orden">
+        <field name="name">Nueva Solicitud</field>
+        <field name="secuencia">1</field>
+    </record>
+    <record id="estado_atencion" model="estado.orden">
+        <field name="name">En Atencion</field>
+        <field name="secuencia">2</field>
+    </record>
+    <record id="estado_entrega_atencion" model="estado.orden">
+        <field name="name">Entrega en Atencion</field>
+        <field name="secuencia">3</field>
+    </record>
+    
+    <record id="estado_proveedor_solicitud" model="estado.orden">
+        <field name="name">Solicitud a Proveedor</field>
+        <field name="secuencia">4</field>
+    </record>
+    <record id="estado_solicitud_aceptada" model="estado.orden">
+        <field name="name">Solicitud a Proveedor Aceptada</field>
+        <field name="secuencia">5</field>
+    </record>
+    <record id="estado_producto_almacen" model="estado.orden">
+        <field name="name">Producto en Almacen</field>
+        <field name="secuencia">6</field>
+    </record>
+    
+    <record id="estado_guia_generado" model="estado.orden">
+        <field name="name">Guia generada</field>
+        <field name="secuencia">7</field>
+    </record>
+    <!-- <record id="estado_guia_firmada_registrada" model="estado.orden">
+        <field name="name">Guia firmada y registrada</field>
+        <field name="secuencia">9</field>
+    </record> -->
+    <record id="estado_entrega_proceso" model="estado.orden">
+        <field name="name">Entrega en Completada</field>
+        <field name="secuencia">8</field>
+    </record>
+    <record id="estado_facturado" model="estado.orden">
+        <field name="name">Facturado</field>
+        <field name="secuencia">9</field>
+    </record>
+    <record id="estado_factura_cancelada" model="estado.orden">
+        <field name="name">Factura cancelada</field>
+        <field name="secuencia">10</field>
+    </record>
+    <record id="estado_servicios" model="estado.orden">
+        <field name="name">Etapa de Servicios</field>
+        <field name="secuencia">11</field>
+    </record>
+    <!-- <record id="estado_finalizado" model="estado.orden">
+        <field name="name">Finalizado</field>
+        <field name="secuencia">12</field>
+    </record> -->
+</odoo>
