@@ -56,7 +56,7 @@ class OrdenCompras(models.Model):
         'estado.orden',
         string="Estado",
         required=True,
-        default=lambda self: self.env['estado.orden'].search([], limit=1)
+        default=lambda self: self.env['estado.orden'].search([], limit=1, ondelete='set null')
     )
     oc = fields.Char(string="N° de OC")
     guia_id = fields.Binary(string="Guia Firmada")
