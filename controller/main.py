@@ -1,5 +1,6 @@
 from odoo import http
 from odoo.http import request
+from urllib.parse import quote
 
 class DownloadRefreshController(http.Controller):
 
@@ -9,7 +10,8 @@ class DownloadRefreshController(http.Controller):
         if not attachment.exists():
             return request.not_found()
 
-        download_url = '/web/content/%s/%s?download=true' % (attachment.id, attachment.name)
+        # Codificar correctamente el nombre del archivo para la URL
+        download_url = '/web/content/%s/%s?download=true' % (attachment.id, quote(attachment.name))
 
         # HTML con JavaScript para descargar el archivo y refrescar la página
         html = """
