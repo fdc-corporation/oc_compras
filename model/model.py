@@ -26,10 +26,11 @@ class IrAttachment(models.Model):
 
     def download_file(self):
         self.ensure_one()
+        download_refresh_url = '/download_refresh/%s' % self.id
         return {
             'type': 'ir.actions.act_url',
-            'url': '/web/content/%s/%s?download=true' % (self.id, self.name),
-            'target': 'self',
+            'url': download_refresh_url,
+            'target': 'new',  # Abrir en una nueva pestaña
         }
 
 class OrdenCompras(models.Model):

@@ -13,6 +13,8 @@
         'account',
         'stock',
         'purchase',
+        'web',
+        'website',
     ],
     'data': [
         'security/security.xml',
