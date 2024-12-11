@@ -21,20 +21,16 @@ class EstadoOrden (models.Model):
 
 
 
-class ir_attachment (models.Model):
+class IrAttachment(models.Model):
     _inherit = 'ir.attachment'
-    _description = 'Archivos adjuntos'
 
-    # @api.multi
     def download_file(self):
-        # Aquí se puede implementar la lógica para la descarga del archivo
         self.ensure_one()
         return {
             'type': 'ir.actions.act_url',
-            'url': '/web/content/%s?download=true' % (self.id),
+            'url': '/web/content/%s/%s?download=true' % (self.id, self.name),
             'target': 'self',
         }
-from odoo import models, fields, api
 
 class OrdenCompras(models.Model):
     _name = 'oc.compras'
@@ -61,6 +57,8 @@ class OrdenCompras(models.Model):
     oc = fields.Char(string="N° de OC")
     guia_id = fields.Binary(string="Guia Firmada")
     guia_filename = fields.Char(string="Nombre del Archivo")
+    ruta_estado = fields.Text(string="Ruta de Estados")
+
 
     def action_create_invoice(self):
         self.ensure_one()
@@ -93,30 +91,35 @@ class OrdenCompras(models.Model):
             self.write_oc_cotizacion()
             self.registrar_cotizacion()
         if 'state' in vals: 
-            self.notificacion_facturar()
+            self.write_ruta_estado()
+            if self.state.secuencia == 8 :
+                self.notificacion_facturar()
         if 'guia_id' in vals:
             self.registrar_guia()
         return result
 
 
 
+    def write_ruta_estado (self):
+        for record in self:
+            estado = self.ruta_estado 
+            estado_actual = record.state.name
+            estado = str(estado) + f" - { str(estado_actual) }"
+            record.ruta_estado = estado
+
 
 
     def notificacion_facturar(self):
-        group = self.env.ref('oc_compras.estado_guia_firmada_registrada')
-        users = self.env['res.users'].search([('groups_id', 'in', group.id)])
+        group = self.env.ref('oc_compras.group_user_facturacion', raise_if_not_found=False)
+        users = self.env['res.users'].search([('groups_id', 'in', [group.id])])
         partners = users.mapped('partner_id')
-        
         for record in self:
             record.message_post(
-                body=_("<i class='fa fa-info-circle'></i> La Orden de Compra %s ha sido actualizada. Entró en la etapa lista para Facturar") % (record.name),
+                body=_("🔔 La Orden de Compra %s ha sido actualizada. Entró en la etapa lista para Facturar") % (record.name),
                 subject=_("Actualización de Orden de Compra"),
                 subtype_xmlid="mail.mt_comment",
                 partner_ids=partners.ids,
             )
-
-
-
 
 
 

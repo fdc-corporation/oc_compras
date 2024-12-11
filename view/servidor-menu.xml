@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="servidor_oc_view_search" model="ir.ui.view">
+        <field name="name">servidor_oc.view.search</field>
+        <field name="model">servidor.correos</field>
+        <!-- Se elimina el campo 'context' ya que no es válido en 'ir.ui.view' -->
 
+        <field name="arch" type="xml">
+            <search string="Buscar Servidores de Correo">
+                <field name="name" />
+                <!-- Filtro llamado Mis Servidores -->
+                <filter string="Mis Servidores" name="filter_servidor" domain="[('creado_por', '=', uid)]"/>
+            </search>
+        </field>
+    </record>
     <record id="view_servidor_correo" model="ir.ui.view">
         <field name="name">servidor.correo.form</field>
         <field name="model">servidor.correos</field>
@@ -59,13 +71,17 @@
         </field>
     </record>
 
+
+
+
     <!-- Acción de Ventana -->
     <record id="action_servidor_correos" model="ir.actions.act_window">
         <field name="name">Servidores</field>
         <field name="res_model">servidor.correos</field>
         <field name="view_mode">tree,form</field>
-        <field name="context">{'user_id': uid}</field>
-        <field name="domain">[('creado_por', '=', context.get('user_id'))]</field>
+        <!-- <field name="context">{'user_id': uid}</field> -->
+        <field name="context">{'search_default_filter_servidor': 1}</field>
+
     </record>
 
 

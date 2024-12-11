@@ -10,6 +10,20 @@
             <field name="number_increment">1</field>
         </record>
 
+        <record id="oc_compras_view_search" model="ir.ui.view">
+            <field name="name">oc_compras.view.search</field>
+            <field name="model">oc.compras</field>
+            <!-- <field name="context">{'user_id': uid}</field> -->
+
+            <field name="arch" type="xml">
+                <search string="">
+                    <field name="name"/>
+                    <!-- Filtro llamado inactivos -->
+                    <filter string="Mis OC" name="filtrer_mis_oc" domain="[('creado_por','=', uid)]"/>
+                </search>
+            </field>
+        </record>
+
         <!-- Vista de Formulario para Orden de Compras -->
         <record id="view_oc_compras_form" model="ir.ui.view">
             <field name="name">oc.compras.form</field>
@@ -38,6 +52,7 @@
                                 <field name="fecha_solicitud"/>
                                 <field name="cotizacion_id" domain="[('oc_id', '=', False)]"/>
                                 <field name="factura"/>
+                                <field name="ruta_estado" invisible="1" />
                             </group>
                         </group>
                         <notebook>
@@ -149,6 +164,7 @@
         <record id="action_oc_compras" model="ir.actions.act_window">
             <field name="name">Órdenes de Compras</field>
             <field name="res_model">oc.compras</field>
+            <field name="context">{'search_default_filtrer_mis_oc': 1}</field>
             <field name="view_mode">kanban,tree,form</field>
             <field name="view_id" ref="view_oc_correctivo_kanban"/>            
         </record>

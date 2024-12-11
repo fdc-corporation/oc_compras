@@ -1,0 +1,95 @@
+*, html, body {
+  box-sizing: border-box;
+}
+
+.header-oc-compras {
+  width: 100%;
+  padding: 15px 5px;
+  display: flex;
+  align-items: center;
+}
+@media screen and (min-width: 600px) {
+  .header-oc-compras {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+.header-oc-compras .icon-regresar a {
+  display: flex;
+  flex-flow: row;
+  gap: 5px;
+  align-items: center;
+}
+.header-oc-compras .icon-regresar a svg {
+  width: 25px;
+  color: white;
+}
+.header-oc-compras .icon-regresar a span {
+  font-size: 1rem;
+  font-weight: 550;
+  color: white;
+  display: none;
+}
+@media screen and (min-width: 600px) {
+  .header-oc-compras .icon-regresar a span {
+    display: block;
+  }
+}
+.header-oc-compras .titulo-oc {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  text-align: center;
+  width: 90%;
+}
+.header-oc-compras .titulo-oc span {
+  text-align: center;
+}
+@media screen and (min-width: 600px) {
+  .header-oc-compras .titulo-oc {
+    text-align: center;
+  }
+}
+.header-oc-compras .btn-select-oc {
+  display: none;
+}
+@media screen and (min-width: 600px) {
+  .header-oc-compras .btn-select-oc {
+    display: block;
+  }
+}
+
+.contenedor-img-procesos {
+  width: 100%;
+  overflow-y: auto;
+}
+.contenedor-img-procesos img {
+  width: 100vw;
+}
+
+.descripcion-oc-contenedor {
+  padding: 10px;
+}
+@media screen and (min-width: 800px) {
+  .descripcion-oc-contenedor {
+    width: 90vw;
+    margin: 0px auto;
+  }
+}
+.descripcion-oc-contenedor .datos-oc {
+  font-size: 14px;
+}
+.descripcion-oc-contenedor .datos-oc a {
+  color: black;
+}
+.descripcion-oc-contenedor .nav-pills .nav-item button {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+/*# sourceMappingURL=oc_compras.css.map */

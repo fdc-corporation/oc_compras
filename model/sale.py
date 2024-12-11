@@ -18,7 +18,6 @@ class SaleOrder (models.Model):
                     # Buscamos el Orden de entrega de la cotizacion que cumpla 3 filtros
                     orden = self.orden_entrega_confirmada()
                     if orden:
-                        print('--------------------ORDEN DE ENTREGA ES TRUE EXISTE------------------------------')
                         estado = self.env.ref('oc_compras.estado_entrega_atencion', raise_if_not_found=False)
                         if estado:
                             record.oc_id.state = estado.id

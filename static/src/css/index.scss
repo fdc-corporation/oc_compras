@@ -1,0 +1,113 @@
+*, html, body {
+  box-sizing: border-box;
+}
+
+@mixin tablet {
+  @media screen and (min-width: 600px) {
+    @content;
+  }
+}
+@mixin laptop {
+  @media screen and (min-width: 800px) {
+    @content;
+  }
+}
+@mixin compu {
+  @media screen and (min-width: 1000px) {
+    @content;
+  }
+}
+@mixin compuMax {
+  @media screen and (min-width: 1450px) {
+    @content;
+  }
+}
+
+.header-oc-compras {
+  width: 100%;
+  padding: 15px 5px;
+  display: flex;
+  align-items: center;
+  @include tablet {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .icon-regresar {
+    a {
+      display: flex;
+      flex-flow: row;
+      gap: 5px;
+      align-items: center;
+      svg {
+        width: 25px;
+        color: white;
+      }
+      span {
+        font-size: 1rem;
+        font-weight: 550;
+        color: white;
+        display: none;
+        @include tablet {
+          display: block;
+        }
+      }
+    }
+  }
+  .titulo-oc {
+    font-size: 1rem;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    width: 90%;
+    span {
+      text-align: center;
+    }
+    @include tablet {
+      text-align: center;
+    }
+  }
+  .btn-select-oc {
+    display: none;
+    @include tablet {
+      display: block;
+    }
+  }
+}
+.contenedor-img-procesos {
+  width: 100%;
+  overflow-y: auto;
+  img {
+    width: 100vw;
+  }
+}
+.descripcion-oc-contenedor {
+
+    padding: 10px;
+  @include laptop {
+    width: 90vw;
+    margin: 0px auto;
+  }
+    .datos-oc {
+    font-size: 14px;
+    // display: flex;
+    // flex-flow: column;
+    // gap: 10px;
+    a {
+        color: black;
+    }
+}
+ .nav-pills {
+    .nav-item {
+        button {
+            // width: 100px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+    }
+ }
+}
