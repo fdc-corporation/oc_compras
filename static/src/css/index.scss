@@ -23,6 +23,46 @@
   }
 }
 
+.main-ordernes {
+  display: flex;
+  flex-flow: column;
+  max-width: 1400px;
+  margin: 10px auto;
+  padding: 15px;
+  @include laptop{
+    padding: 25px;
+  }
+  .contenedor-table {
+    table {
+      font-size: 14px;
+      thead {
+        tr {
+          th {
+            font-weight: bold;
+            white-space: nowrap; /* Evita que el texto se desborde */
+            vertical-align: middle; /* Centra el texto verticalmente */
+         }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            white-space: nowrap; /* Evita que el texto se desborde */
+            vertical-align: middle; 
+            .estado-oc {
+              color: white;
+              padding: 3px 5px;
+              background-color: rgb(24, 166, 24);
+              border-radius: 10px;
+              font-size: 13px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 .header-oc-compras {
   width: 100%;
   padding: 15px 5px;

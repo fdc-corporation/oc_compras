@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="ordenes_compra_portal" name="Mis Ordenes de Compra">
+		<t t-call="website.layout">
+			<div class="main-ordernes" style="">
+				<!-- <div class="contenedor-header-table"> -->
+				<div class="navbar navbar-expand-lg flex-wrap mb-4 p-0 o_portal_navbar ">
+					<ol class="o_portal_submenu breadcrumb mb-0 flex-grow-1 px-0">
+						<li class="breadcrumb-item ms-1">
+							<a href="/my/home">
+								<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+									<path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293z" />
+									<path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293z" />
+								</svg>
+							</a>
+						</li>
+						<li class="breadcrumb-item active ">
+							Órdenes de compra
+						</li>
+					</ol>
+				</div>
+				<div class="table-responsive contenedor-table ">
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th>
+									N° Orden de Compra
+								</th>
+								<th>
+									Fecha de Solicitud
+								</th>
+								<th>
+									Orden de venta
+								</th>
+								<th>
+									Estado
+								</th>
+								<th>
+									Atendido por
+								</th>
+								<th>
+									Acciones
+								</th>
+							</tr>
+						</thead>
+                        <tbody>
+						<t t-foreach="ordenes" t-as="oc">
+							<tr>
+								<td>
+									<t t-esc="oc.name" />
+								</td>
+								<td>
+									<t t-esc="oc.fecha_solicitud" />
+								</td>
+								<td>
+									<a t-att-href="'/my/orders/' + str(oc.cotizacion_id.id)">
+										<t t-esc="oc.cotizacion_id.name" />
+									</a>
+								</td>
+                                <td>
+									<span class="estado-oc" t-esc="oc.state.name"></span>
+                                </td>
+								<td>
+									<t t-esc="oc.creado_por.name" />
+								</td>
+								<td>
+									<a class="btn btn-primary " t-att-href="'/my/orden/'">
+										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+											<path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
+											<path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />
+										</svg>
+									</a>
+								</td>
+							</tr>
+						</t>
+					</tbody>
+					</table>
+
+					
+				</div>
+				<!-- </div> -->
+			</div>
+		</t>
+	</template>
+</odoo>

@@ -25,8 +25,16 @@
         'view/code/ir.cron.xml',
         'view/herencia_view_iherit.xml',
         'data/estados_data_oc.xml',
+        # VISTAS PARA PORTAL USUARIO
+        'view/web/portal_template.xml',
+        'view/web/template_ordenes_compra.xml',
 
     ],
+    'assets': {
+        'web.assets_frontend': [
+            'oc_compras/static/src/css/oc_compras.css',
+        ],
+    },
     'installable': True,
     'application': True,
     'auto_install': False,

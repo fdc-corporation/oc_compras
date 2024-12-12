@@ -36,3 +36,12 @@ class DownloadRefreshController(http.Controller):
         """.format(download_url=download_url)
 
         return html
+
+    @http.route(['/my/compras/ordenes'], auth="user", website=True, type="http")
+    def get_ordenes (self, **kwargs):
+        user_partner = request.env.user.partner_id
+        # Obtener todos las OC de los clientes 
+        if user_partner :
+            domain = [("cliente", "=", user_partner.id )]
+            ordenes = request.env["oc.compras"].sudo().search(domain)
+            return request.render("oc_compras.ordenes_compra_portal", {"ordenes": ordenes})

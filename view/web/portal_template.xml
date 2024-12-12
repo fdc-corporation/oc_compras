@@ -1,0 +1,16 @@
+<data>
+    <template id="portal_my_home_inherit" inherit_id="portal.portal_my_home">
+        <xpath expr="//div[contains(@class, 'o_portal_docs')]" position="before">
+            <t t-call="portal.portal_docs_entry">
+                
+                <t t-set="icon" t-value="'/project/static/src/img/tasks.svg'"/>
+                <t t-set="title">Ordenes de Compra</t>
+                <t t-set="text">Mis ordenes de compra</t>
+                <t t-set="url">/my/compras/ordenes</t>
+                <t t-set="config_card" t-value="True"/>
+            </t>
+            
+        </xpath>
+    </template>
+  </data>
+  
