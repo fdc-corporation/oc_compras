@@ -44,6 +44,7 @@ class OrdenCompras(models.Model):
     fecha_solicitud = fields.Date(string="Fecha Solicitud", default=lambda self: fields.Date.today())
     de = fields.Char(string="De")
     asunto = fields.Char(string="Asunto")
+    tarea = fields.Char(string="Asunto")
     body = fields.Html(string="Contenido")
     documentos = fields.Many2many('ir.attachment', string="Adjuntos")
     cliente = fields.Many2one('res.partner', string="Cliente")
@@ -59,6 +60,11 @@ class OrdenCompras(models.Model):
     guia_id = fields.Binary(string="Guia Firmada")
     guia_filename = fields.Char(string="Nombre del Archivo")
     ruta_estado = fields.Text(string="Ruta de Estados")
+    # ot_servicio = fields.Many2one(
+    #     related="cotizacion_id.ots", 
+    #     string="Orden de Trabajo", 
+    #     store=True
+    # )
 
 
     def action_create_invoice(self):
@@ -131,7 +137,7 @@ class OrdenCompras(models.Model):
         for record in self:
             if record.cotizacion_id:
                 record.cliente = record.cotizacion_id.partner_id.id
-
+                # record.ot_servicio = record.cotizacion_id.ots.id
     def registrar_cotizacion(self):
         for record in self:
             if record.cotizacion_id:

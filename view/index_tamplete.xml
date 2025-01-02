@@ -52,6 +52,7 @@
                                 <field name="fecha_solicitud"/>
                                 <field name="cotizacion_id" domain="[('oc_id', '=', False)]"/>
                                 <field name="factura"/>
+                                <!-- <field name="ot_servicio"/> -->
                                 <field name="ruta_estado" invisible="1" />
                             </group>
                         </group>
