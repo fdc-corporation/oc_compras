@@ -18,8 +18,10 @@
             <field name="arch" type="xml">
                 <search string="">
                     <field name="name"/>
+                    <field name="oc"/>
                     <!-- Filtro llamado inactivos -->
                     <filter string="Mis OC" name="filtrer_mis_oc" domain="[('creado_por','=', uid)]"/>
+                    <filter string="N° de OC" name="filter_oc" domain="[('oc','=', oc)]"/>
                 </search>
             </field>
         </record>
@@ -52,7 +54,7 @@
                                 <field name="fecha_solicitud"/>
                                 <field name="cotizacion_id" options="{'no_quick_create': true, 'no_create_edit': true}" domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
                                 <field name="factura"  options="{'no_quick_create': true, 'no_create_edit': true}"  domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
-                                <!-- <field name="ot_servicio"/> -->
+                                <field name="prioridad" widget="priority"  />
                                 <field name="ruta_estado" invisible="1" />
                             </group>
                         </group>
@@ -103,6 +105,7 @@
                     <field name="state"/>
                     <field name="cliente"/>
                     <field name="cotizacion_id"/>                     
+                    <field name="prioridad"/>                     
                     <templates>
                         <t t-name="kanban-tooltip">
                             <ul class="oe_kanban_tooltip">
@@ -134,7 +137,7 @@
                                     <div class="o_kanban_record_bottom">
                                         <div class="oe_kanban_bottom_left">
                                             <div class="o_kanban_inline_block ml4 mr4">
-                                                <!-- Agrega cualquier otro campo aquí si es necesario -->
+                                                <field name="prioridad" widget="priority"  />
                                             </div>
                                         </div>
                                         <div class="oe_kanban_bottom_right">
