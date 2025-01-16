@@ -89,8 +89,8 @@ class ServidorCorreos(models.Model):
                             from_ = msg.get("From")
                             if isinstance(from_, bytes):
                                 from_ = from_.decode('utf-8', errors='replace')
-
-                            if 'OC' in subject or 'Orden de Compra ' in subject :
+                            valores_oc = ['OC', 'Order ', 'Orden de Compra', 'Purchase', 'PO' ]
+                            if any(valor in subject for valor in valores_oc) :
                                 # Crear la orden de compra
                                 orden_compra = self.env['oc.compras'].create({
                                     'de': from_,
