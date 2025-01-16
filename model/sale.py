@@ -7,7 +7,7 @@ class SaleOrder (models.Model):
     _inherit = 'sale.order'
     _description = 'Orden de Venta'
 
-    oc_id = fields.Many2one('oc.compras', string="OC")
+    oc_id = fields.Many2one('oc.compras', string="OC", ondelete="set null",)
 
 
     def action_confirm(self):
