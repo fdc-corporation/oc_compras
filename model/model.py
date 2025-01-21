@@ -68,13 +68,14 @@ class OrdenCompras(models.Model):
     guia_filename = fields.Char(string="Nombre del Archivo")
     ruta_estado = fields.Text(string="Ruta de Estados")
     prioridad = fields.Selection(
-        [("muy_baja", "Muy baja"), ("baja", "Baja"), ("media", "Media"), ("alta", "Alta")], string="Prioridad"
+        [
+            ("muy_baja", "Muy baja"),
+            ("baja", "Baja"),
+            ("media", "Media"),
+            ("alta", "Alta"),
+        ],
+        string="Prioridad",
     )
-    # ot_servicio = fields.Many2one(
-    #     related="cotizacion_id.ots",
-    #     string="Orden de Trabajo",
-    #     store=True
-    # )
 
     def action_create_invoice(self):
         self.ensure_one()
@@ -102,16 +103,38 @@ class OrdenCompras(models.Model):
 
     def write(self, vals):
         result = super(OrdenCompras, self).write(vals)
+        
         if "cotizacion_id" in vals:
             self.write_oc_cotizacion()
             self.registrar_cotizacion()
+            self.delete_cotizacion()        
         if "state" in vals:
             self.write_ruta_estado()
             if self.state.secuencia == 8:
                 self.notificacion_facturar()
+        
         if "guia_id" in vals:
             self.registrar_guia()
+        
         return result
+
+    @api.depends("cotizacion_id")
+    def delete_cotizacion(self):
+        for record in self:
+            # Busca las cotizaciones vinculadas a esta OC
+            cotizaciones = self.env["sale.order"].search([("oc_id", "=", record.id)])
+            
+            # Si tiene cotización vinculada, procesamos la desvinculación
+            if record.cotizacion_id:
+                for cotizacion in cotizaciones:
+                    # Desvincula la OC de la cotización encontrada si no es la misma
+                    if record.cotizacion_id.id != cotizacion.id:
+                        cotizacion.write({"oc_id": False})
+            elif not record.cotizacion_id:
+                # Si no hay cotización vinculada, seguimos con el proceso de desvinculación
+                for cotizacion in cotizaciones:
+                    cotizacion.write({"oc_id": False})
+
 
     def write_ruta_estado(self):
         for record in self:
