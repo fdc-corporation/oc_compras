@@ -120,22 +120,17 @@ class OrdenCompras(models.Model):
 
         return result
 
-    @api.depends("oc")
+    @api.depends('oc')
     def _compute_oc_existente(self):
         for record in self:
+            # Verificar si el campo 'oc' está definido
             if record.oc:
-                print(record.oc)
                 # Busca la OC en la cotización
                 oc_cotizacion = self.env["oc.compras"].search([("oc", "=", record.oc)])
-                print("----------------DATOS DE LAS OC------------------------")
-                print("OC : ", oc_cotizacion)
-                # Si la OC existe en la cotización, vincula la OC con la cotización
-                if any(oc.id != record.id for oc in oc_cotizacion):
-                    print("TRUE")
-                    record.oc_existente = True
-                else:
-                    print("FALSE")
-                    record.oc_existente = False
+                record.oc_existente = any(oc.id != record.id for oc in oc_cotizacion)
+            else:
+                # Asignar False si 'oc' no está definido
+                record.oc_existente = False
 
     @api.depends("cotizacion_id")
     def delete_cotizacion(self):
