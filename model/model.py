@@ -77,7 +77,12 @@ class OrdenCompras(models.Model):
         string="Prioridad",
     )
     fecha_solicitud = fields.Date(string="Fecha de Solicitud")
-    oc_existente = fields.Boolean(string="active_alert", compute="_compute_oc_existente")
+    oc_existente = fields.Boolean(
+        string="active_alert", compute="_compute_oc_existente"
+    )
+    is_sunat = fields.Boolean(string="Es una factura Sunat?")
+    factura_sunat = fields.Char(string="Factura Sunat")
+
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id
@@ -117,10 +122,19 @@ class OrdenCompras(models.Model):
                 self.notificacion_facturar()
         if "guia_id" in vals:
             self.registrar_guia()
-
+        if "factura_sunat" in vals:
+            self._update_estado_factura()
         return result
 
-    @api.depends('oc')
+    def _update_estado_factura(self):
+        for record in self:
+            if record.factura_sunat:
+                estado = self.env.ref(
+                    "oc_compras.estado_facturado", raise_if_not_found=False
+                )
+                record.state = estado.id
+
+    @api.depends("oc")
     def _compute_oc_existente(self):
         for record in self:
             # Verificar si el campo 'oc' está definido
