@@ -46,8 +46,8 @@ class OrdenCompras(models.Model):
     compania = fields.Many2one(
         "res.company", string="Compañia", default=lambda self: self.env.company
     )
-    fecha_solicitud = fields.Date(
-        string="Fecha Solicitud", default=lambda self: fields.Date.today()
+    fecha_creacion = fields.Date(
+        string="Fecha de creacion", default=lambda self: fields.Date.today()
     )
     de = fields.Char(string="De")
     asunto = fields.Char(string="Asunto")
@@ -76,7 +76,8 @@ class OrdenCompras(models.Model):
         ],
         string="Prioridad",
     )
-
+    fecha_solicitud = fields.Date(string="Fecha de Solicitud")
+    oc_existente = fields.Boolean(string="active_alert", compute="_compute_oc_existente")
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id
@@ -103,27 +104,44 @@ class OrdenCompras(models.Model):
 
     def write(self, vals):
         result = super(OrdenCompras, self).write(vals)
-        
+        # self.write_oc()
+        # if "oc" in vals:
+        #     self.write_oc()
         if "cotizacion_id" in vals:
             self.write_oc_cotizacion()
             self.registrar_cotizacion()
-            self.delete_cotizacion()        
+            self.delete_cotizacion()
         if "state" in vals:
             self.write_ruta_estado()
             if self.state.secuencia == 8:
                 self.notificacion_facturar()
-        
         if "guia_id" in vals:
             self.registrar_guia()
-        
+
         return result
+
+    @api.depends("oc")
+    def _compute_oc_existente(self):
+        for record in self:
+            print(record.oc)
+            # Busca la OC en la cotización
+            oc_cotizacion = self.env["oc.compras"].search([("oc", "=", record.oc)])
+            print("----------------DATOS DE LAS OC------------------------")
+            print("OC : ", oc_cotizacion)
+            # Si la OC existe en la cotización, vincula la OC con la cotización
+            if any(oc.id != record.id for oc in oc_cotizacion):
+                print("TRUE")
+                record.oc_existente = True
+            else:
+                print("FALSE")
+                record.oc_existente = False
 
     @api.depends("cotizacion_id")
     def delete_cotizacion(self):
         for record in self:
             # Busca las cotizaciones vinculadas a esta OC
             cotizaciones = self.env["sale.order"].search([("oc_id", "=", record.id)])
-            
+
             # Si tiene cotización vinculada, procesamos la desvinculación
             if record.cotizacion_id:
                 for cotizacion in cotizaciones:
@@ -134,7 +152,6 @@ class OrdenCompras(models.Model):
                 # Si no hay cotización vinculada, seguimos con el proceso de desvinculación
                 for cotizacion in cotizaciones:
                     cotizacion.write({"oc_id": False})
-
 
     def write_ruta_estado(self):
         for record in self:

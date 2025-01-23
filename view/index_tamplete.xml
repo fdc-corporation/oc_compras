@@ -37,6 +37,9 @@
                             <field name="state" widget="statusbar" options="{'clickable': True}" />
                             <button name="action_create_invoice" type="object" string="Crear Factura" class="oe_highlight"/>
                         </header>
+                        <div class="alert alert-warning" role="alert" invisible="not oc_existente">
+                        Alerta: La OC ingresada ya existe en otro registro
+                        </div>
                         <div class="oe_title">
                             <label for="name"></label>
                             <h1 style="display: flex; align-items: center;">
@@ -45,10 +48,12 @@
                         </div>
                         <group string="Datos del registro">
                             <group>
+                                <field name="fecha_creacion"/>
                                 <field name="creado_por"/>
                                 <field name="compania"/>  <!-- Updated field name -->
                                 <field name="cliente" />
                                 <field name="oc" />
+                                <field name="oc_existente"  />                                
                             </group>
                             <group>
                                 <field name="fecha_solicitud"/>
@@ -110,7 +115,8 @@
                     <field name="state"/>
                     <field name="cliente"/>
                     <field name="cotizacion_id"/>                     
-                    <field name="prioridad"/>                     
+                    <field name="prioridad"/>      
+                    <field name="fecha_solicitud" />               
                     <templates>
                         <t t-name="kanban-tooltip">
                             <ul class="oe_kanban_tooltip">
@@ -137,7 +143,13 @@
                                     </div>
                                     <div class="o_kanban_record_body">
                                         <span name="oc" t-if="record.oc" ><field name="oc"></field><br></br></span>
-                                        <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id"/><br/></span>
+                                        
+                                        <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id" invisible="not cotizacion_id"/><br/></span>
+                                        <div t-if="record.fecha_solicitud" name="fecha_solicitud" invisible="not fecha_solicitud">
+                                            <span>
+                                            <field name="fecha_solicitud" widget="remaining_days" /> - <field name="fecha_solicitud" />
+                                            </span>
+                                        </div> 
                                     </div>
                                     <div class="o_kanban_record_bottom">
                                         <div class="oe_kanban_bottom_left">
