@@ -56,7 +56,7 @@ class OrdenCompras(models.Model):
     documentos = fields.Many2many("ir.attachment", string="Adjuntos")
     cliente = fields.Many2one("res.partner", string="Cliente")
     cotizacion_id = fields.Many2one("sale.order", string="Cotización")
-    factura = fields.Many2one("account.move", string="Factura")
+    factura = fields.Many2many("account.move", string="Factura")
     state = fields.Many2one(
         "estado.orden",
         string="Estado",

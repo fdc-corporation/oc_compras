@@ -58,7 +58,7 @@
                             <group>
                                 <field name="fecha_solicitud"/>
                                 <field name="cotizacion_id" options="{'no_quick_create': true, 'no_create_edit': true}" domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
-                                <field name="factura" invisible="is_sunat"  options="{'no_quick_create': true, 'no_create_edit': true}"  domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
+                                <field name="factura" widget="many2many_tags" invisible="is_sunat"  options="{'no_quick_create': true, 'no_create_edit': true}"  domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
                                 <field name="is_sunat"   />
                                 <field name="factura_sunat"  invisible="not is_sunat"  />
                                 <field name="prioridad" widget="priority"  />
