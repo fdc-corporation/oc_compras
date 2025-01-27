@@ -53,7 +53,8 @@
                                 <field name="compania"/>  <!-- Updated field name -->
                                 <field name="cliente" />
                                 <field name="oc" />
-                                <field name="oc_existente"  />                                
+                                <field name="oc_existente" invisible="True" />    
+                                <field name="ot_servicio" />                            
                             </group>
                             <group>
                                 <field name="fecha_solicitud"/>
@@ -112,7 +113,7 @@
             <field name="name">oc.compras.kanban</field>
             <field name="model">oc.compras</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="state" sample="1">
+                <kanban default_group_by="state" kanban_default_order="state desc" sample="1">
                     <field name="oc"/>
                     <field name="state"/>
                     <field name="cliente"/>

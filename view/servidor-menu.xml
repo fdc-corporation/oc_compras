@@ -39,6 +39,7 @@
                             <field name="fecha_solicitud"/>
                             <field name="estado"/>
                         </group>
+
                     </group>
                     <group >
                         <group>
@@ -49,7 +50,14 @@
                             <field name="imap"/>
                         </group>
                     </group>
-                    
+                    <group name="servicio smpt" string="Datos SMTP">
+                        <group>
+                            <field name="smtp" />                            
+                        </group>
+                        <group>
+                            <field name="smtp_port" />
+                        </group>
+                    </group>
                 </sheet>
             </form>
         </field>

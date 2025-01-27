@@ -1,10 +1,12 @@
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import imaplib
 import email
 from email.header import decode_header
 import logging
 import os
 import base64
+from . import template_email
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -20,7 +22,9 @@ class ServidorCorreos(models.Model):
     creado_por = fields.Many2one('res.users', string="Creado por", required=True)
     compania = fields.Many2one('res.company', string="Compañía")
     estado = fields.Char(string="Estado", readonly=True)
-
+    smtp = fields.Char(string="Servidor SMTP", )
+    smtp_port = fields.Integer(string='Puerto SMTP', default=587)
+    
 
     @api.model
     def create(self, vals):
@@ -128,6 +132,8 @@ class ServidorCorreos(models.Model):
 
                                 # Asignar el cuerpo HTML a la orden de compra
                                 orden_compra.body = html_body
+                                if orden_compra :
+                                    response = template_email.set_email(record.smtp , record.smtp_port, record.correo, record.password, from_,  subject, orden_compra.name)
 
             except Exception as e:
                 _logger.error("Error al obtener OC: %s", str(e))

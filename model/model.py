@@ -82,7 +82,7 @@ class OrdenCompras(models.Model):
     )
     is_sunat = fields.Boolean(string="Es una factura Sunat?")
     factura_sunat = fields.Char(string="Factura Sunat")
-
+    ot_servicio = fields.Many2one('maintenance.request', string="OT")
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id
@@ -105,6 +105,7 @@ class OrdenCompras(models.Model):
     @api.model
     def create(self, vals):
         vals["name"] = self.env["ir.sequence"].next_by_code("oc.compras")
+        
         return super(OrdenCompras, self).create(vals)
 
     def write(self, vals):
