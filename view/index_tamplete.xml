@@ -94,8 +94,14 @@
 
                                         </tree>
                                     </field>
-                                    <field name="guia_id" filename="guia_filename"/>
-                                    <field name="guia_filename" invisible="1"/>     
+                                    <group>
+                                        <field name="guia_id" filename="guia_filename"/>
+                                        <field invisible="true" name="guia_filename"/>
+                                    </group>
+                                    <group>
+                                        <button invisible="true" name="descargar_guia" type="object" string="Descargar Guía"/>
+                                    </group>
+                                       
                                 </group>
                             </page>
                         </notebook>
@@ -113,7 +119,7 @@
             <field name="name">oc.compras.kanban</field>
             <field name="model">oc.compras</field>
             <field name="arch" type="xml">
-                <kanban default_group_by="state" kanban_default_order="state desc" sample="1">
+                <kanban class="o_kanban_dashboard" default_group_by="state" kanban_default_order="state desc" sample="1">
                     <field name="oc"/>
                     <field name="state"/>
                     <field name="cliente"/>

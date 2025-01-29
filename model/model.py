@@ -83,6 +83,30 @@ class OrdenCompras(models.Model):
     is_sunat = fields.Boolean(string="Es una factura Sunat?")
     factura_sunat = fields.Char(string="Factura Sunat")
     ot_servicio = fields.Many2one('maintenance.request', string="OT")
+
+
+    def descargar_guia(self):
+            """ Redirige a la URL de descarga """
+            self.ensure_one()
+            if not self.guia_id:
+                return {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': 'Error',
+                        'message': 'No hay un archivo disponible para descargar.',
+                        'type': 'danger',
+                        'sticky': False,
+                    }
+                }
+            return {
+                'type': 'ir.actions.act_url',
+                'url': f"/web/content/{self.id}/guia_id?download=true",
+                'target': 'self',
+            }
+
+
+
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id
@@ -105,7 +129,7 @@ class OrdenCompras(models.Model):
     @api.model
     def create(self, vals):
         vals["name"] = self.env["ir.sequence"].next_by_code("oc.compras")
-        
+
         return super(OrdenCompras, self).create(vals)
 
     def write(self, vals):
