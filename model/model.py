@@ -76,7 +76,7 @@ class OrdenCompras(models.Model):
         ],
         string="Prioridad",
     )
-    fecha_solicitud = fields.Date(string="Fecha de Solicitud")
+    fecha_solicitud = fields.Date(string="Fecha de Finalizacion")
     oc_existente = fields.Boolean(
         string="active_alert", compute="_compute_oc_existente"
     )
