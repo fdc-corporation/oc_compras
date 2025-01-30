@@ -26,10 +26,12 @@ class FacturaOC (models.Model):
             sale = self.env['sale.order'].search([('name', '=', name_orden)])
 
             if sale:
+                sale.state = "facturado"
                 record.oc_id = sale.oc_id.id
                 estado = self.env.ref('oc_compras.estado_facturado', raise_if_not_found=False)
                 if estado:
                     record.oc_id.state = estado.id
+                    
                     record.oc_id.factura = [(6, 0, [record.id])]
         return result
 

@@ -8,7 +8,7 @@ class SaleOrder (models.Model):
     _description = 'Orden de Venta'
 
     oc_id = fields.Many2one('oc.compras', string="OC", ondelete="set null",)
-
+    state = fields.Selection( selection_add=[("facturado", "Facturado")])
 
     def action_confirm(self):
         result = super(SaleOrder, self).action_confirm()
