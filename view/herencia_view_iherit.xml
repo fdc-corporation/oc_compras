@@ -9,6 +9,9 @@
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
                 <field name="oc_id" readonly="True" />
             </xpath>
+            <xpath expr="//field[@name='state']" position="replace">
+                <field name="state" widget="statusbar"/>
+            </xpath>
         </field>
     </record>
     <record id="account_inherit_form_view" model="ir.ui.view">
