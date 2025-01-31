@@ -130,7 +130,13 @@ class InventarioOC (models.Model):
             if record.oc_id:
                 estado = self.env.ref('oc_compras.estado_guia_generado', raise_if_not_found=False)
                 record.oc_id.state = estado.id
-
+            else : 
+                cotizacion = record.origin
+                sale = self.env['sale.order'].search([('name', '=', cotizacion), ('state', '=','sale')])
+                if sale and sale.oc_id :
+                    sale.oc_id.guia_generada = record.id
+                    estado = self.env.ref('oc_compras.estado_guia_generado', raise_if_not_found=False)
+                    record.oc_id.state = estado.id
         return result
 
 

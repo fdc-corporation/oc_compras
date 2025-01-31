@@ -28,6 +28,7 @@
         # VISTAS PARA PORTAL USUARIO
         'view/web/portal_template.xml',
         'view/web/template_ordenes_compra.xml',
+        'view/guias/action_guias_vieew.xml',
 
     ],
     'assets': {

@@ -67,6 +67,7 @@ class OrdenCompras(models.Model):
     guia_id = fields.Binary(string="Guia Firmada")
     guia_filename = fields.Char(string="Nombre del Archivo")
     ruta_estado = fields.Text(string="Ruta de Estados")
+    guia_generada = fields.Many2one("stock.picking", string="Guia Generada")
     prioridad = fields.Selection(
         [
             ("muy_baja", "Muy baja"),
@@ -82,30 +83,83 @@ class OrdenCompras(models.Model):
     )
     is_sunat = fields.Boolean(string="Es una factura Sunat?")
     factura_sunat = fields.Char(string="Factura Sunat")
-    ot_servicio = fields.Many2one('maintenance.request', string="OT")
+    ot_servicio = fields.Many2one("maintenance.request", string="OT")
+    facturas_cantidad = fields.Integer(compute="_total_facturas")
+    cotizacion_cantidad = fields.Integer(compute="_total_cotizaciones")
+    servicios_cantidad = fields.Integer(compute="_total_servicios")
+    guias_cantidad = fields.Integer(compute="_total_guias")
 
+    def _total_facturas(self):
+        self.facturas_cantidad = len(self.factura)
+
+    def _total_cotizaciones(self):
+        self.cotizacion_cantidad = len(self.cotizacion_id)
+
+    def _total_servicios(self):
+        self.servicios_cantidad = len(self.ot_servicio)
+
+    def _total_guias(self):
+        self.guias_cantidad = len(self.guia_generada)
+
+    def action_view_factura(self):
+        return {
+            "name": "Facturas",
+            "domain": [("id", "in", self.factura.ids)],
+            "view_type": "tree",
+            "view_mode": "tree",
+            "res_model": "account.move",
+            "context": "{'create' : False}",
+        }
+
+    def action_view_cotizaciones(self):
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Ventas",
+            "view_mode": "form",
+            "res_model": "sale.order",
+            "res_id": self.cotizacion_id.id,
+            "context": "{'create' : False}",
+        }
+
+    def action_view_servicios(self):
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Ordenes de Compra",
+            "view_mode": "form",
+            "res_model": "maintenance.request",
+            "res_id": self.ot_servicio.id,
+            "context": "{'create' : False}",
+        }
+
+    def action_view_guia(self):
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Guías",
+            "domain": self.guia_generada.id,
+            "view_mode": "form",
+            "res_model": "stock.picking",
+            "context": "{'create' : False}",
+        }
 
     def descargar_guia(self):
-            """ Redirige a la URL de descarga """
-            self.ensure_one()
-            if not self.guia_id:
-                return {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': 'Error',
-                        'message': 'No hay un archivo disponible para descargar.',
-                        'type': 'danger',
-                        'sticky': False,
-                    }
-                }
+        """Redirige a la URL de descarga"""
+        self.ensure_one()
+        if not self.guia_id:
             return {
-                'type': 'ir.actions.act_url',
-                'url': f"/web/content/{self.id}/guia_id?download=true",
-                'target': 'self',
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Error",
+                    "message": "No hay un archivo disponible para descargar.",
+                    "type": "danger",
+                    "sticky": False,
+                },
             }
-
-
+        return {
+            "type": "ir.actions.act_url",
+            "url": f"/web/content/{self.id}/guia_id?download=true",
+            "target": "self",
+        }
 
     def action_create_invoice(self):
         self.ensure_one()

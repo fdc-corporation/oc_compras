@@ -32,11 +32,34 @@
             <field name="model">oc.compras</field>
             <field name="arch" type="xml">
                 <form string="Orden de Compras">
+                    <header>
+                        <field name="state" widget="statusbar" options="{'clickable': True}" />
+                        <!-- <button name="action_create_invoice" type="object" string="Crear Factura" class="oe_highlight"/> -->
+                        
+                    </header>
                     <sheet>
-                        <header>
-                            <field name="state" widget="statusbar" options="{'clickable': True}" />
-                            <button name="action_create_invoice" type="object" string="Crear Factura" class="oe_highlight"/>
-                        </header>
+                        <div class="oe_button_box" name="button_box">
+                            <!-- BOTON DE FACTURACION -->
+                                <button class="oe_stat_button" type="object" name="action_view_factura"
+                                    icon="fa-pencil-square-o">
+                                    <field string="Facturas" name="facturas_cantidad" widget="statinfo"/>
+                                </button>
+                                <!-- BOTON DE COTIZACIONES -->
+                                <button class="oe_stat_button" type="object"  name="action_view_cotizaciones"
+                                        icon="fa-pencil-square-o">
+                                        <field string="Cotizacion" name="cotizacion_cantidad" widget="statinfo"/>
+                                </button>
+                                <!-- BOTON PARA SERVICIOS -->
+                                <button class="oe_stat_button" type="object" name="action_view_servicios"
+                                        icon="fa-wrench">
+                                        <field string="Servicios" name="servicios_cantidad" widget="statinfo"/>
+                                </button>
+                                <!-- BOTON PARA LA GUIA -->
+                                <button class="oe_stat_button" type="object" name="action_view_guia"
+                                        icon="fa-file-text-o">
+                                        <field string="Guia" name="guias_cantidad" widget="statinfo"/>
+                                </button>
+                            </div>
                         <div class="alert alert-warning" role="alert" invisible="not oc_existente">
                         Alerta: La OC ingresada ya existe en otro registro
                         </div>
