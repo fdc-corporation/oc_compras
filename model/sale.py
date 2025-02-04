@@ -37,6 +37,22 @@ class SaleOrder (models.Model):
                     print(f"Error inesperado: {e}")
         return result
 
+
+
+    def action_view_delivery (self):
+        res = super(SaleOrder, self).action_view_delivery()
+        for record in self:
+            if record.oc_id:
+                picking_ids = record.env['stock.picking'].search([
+                    ('origin', '=', record.name),
+                    ('state', '=', 'assigned'),
+                    ('picking_type_id.code', '=', 'outgoing'),
+                    ('location_dest_id.usage', '=', 'customer')
+                ])
+                if picking_ids:
+                    res['domain'] = [('id', 'in', picking_ids.ids)]
+        return res
+
     # def create_mantenimiento (self) :
     #     try:
     #         res = super(SaleOrder, self).create_mantenimiento()

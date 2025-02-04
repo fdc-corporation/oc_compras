@@ -134,8 +134,8 @@ class OrdenCompras(models.Model):
     def action_view_guia(self):
         return {
             "type": "ir.actions.act_window",
-            "name": "Guías",
-            "domain": self.guia_generada.id,
+            "name": "Guías Electronicas",
+            "res_id": self.guia_generada.id,
             "view_mode": "form",
             "res_model": "stock.picking",
             "context": "{'create' : False}",
