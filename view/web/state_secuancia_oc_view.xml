@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="oc_state_secuencia" name="Orden de Compra">
+		<t t-call="website.layout">
+			<div class="bg-primary header-oc-compras">
+				<div class="icon-regresar">
+					<a href="/my/compras/ordenes">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="white" class="bi bi-chevron-double-left" viewBox="0 0 16 16">
+							<path fill-rule="evenodd" d="M8.354 1.646a.5.5 0 0 1 0 .708L2.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+							<path fill-rule="evenodd" d="M12.354 1.646a.5.5 0 0 1 0 .708L6.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0" />
+						</svg>
+						<span>
+							Regresar
+						</span>
+					</a>
+				</div>
+				<div class="titulo-oc">
+					<span>
+						Orden de Compra
+					</span>
+					<span>
+						:
+					</span>
+					<span>
+						N°
+						<span t-esc="oc.name">
+						</span>
+					</span>
+				</div>
+				<!--
+				<div class="btn-select-oc">
+				
+				<select class="form-select form-select-sm" aria-label="Default select example">
+				<option selected>Mis ordene</option>
+				<option value="1">ORC/002</option>
+				<option value="2">ORC/102</option>
+				<option value="3">ORC/012</option>
+				</select>
+				</div>
+				-->
+			</div>
+			<div class="descripcion-oc-contenedor">
+				<br>
+					<h5>
+						Bienvenido a tu Orden de Compra
+					</h5>
+					<hr>
+						<div class="container mt-4">
+							<div class="row">
+								<!-- Primera Columna -->
+								<div class="col-md-6">
+									<p>
+										<strong>
+											Fecha de creación:
+										</strong>
+										<span t-esc="oc.fecha_creacion.strftime('%d %B, %Y')">
+										</span>
+									</p>
+									<p>
+										<strong>
+											Responsable:
+										</strong>
+										<span t-esc="oc.creado_por.name">
+										</span>
+									</p>
+									<p>
+										<strong>
+											Cliente:
+										</strong>
+										<span t-esc="oc.cliente.name">
+										</span>
+									</p>
+									<p>
+										<strong>
+											RUC:
+										</strong>
+										<span t-esc="oc.cliente.vat">
+										</span>
+									</p>
+								</div>
+								<!-- Segunda Columna -->
+								<div class="col-md-6">
+									<p>
+										<strong>
+											Correo electrónico:
+										</strong>
+										<span t-esc="oc.cliente.email">
+										</span>
+									</p>
+									<p>
+										<strong>
+											Teléfono:
+										</strong>
+										<span t-esc="oc.cliente.phone or oc.cliente.mobile">
+										</span>
+									</p>
+									<p>
+										<strong>
+											Dirección:
+										</strong>
+										<span t-esc="oc.cliente.street">
+										</span>
+									</p>
+									<p>
+										<strong>
+											Orden de Venta:
+										</strong>
+										<a t-att-href="'/my/orders/' + str(oc.cotizacion_id.id)">
+											<t-esc t-esc="oc.cotizacion_id.name">
+											</t-esc>
+										</a>
+									</p>
+								</div>
+							</div>
+						</div>
+						<hr>
+							<h5>
+								Verifica en que estado esta tu OC
+							</h5>
+							<br>
+								<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+									<li class="nav-item" role="presentation">
+										<button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">
+											Procesos de la OC
+										</button>
+									</li>
+									<t t-if="oc.ot_servicio">
+										<li class="nav-item" role="presentation">
+											<button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">
+												Proceso de su
+												Servicio
+											</button>
+										</li>
+									</t>
+								</ul>
+								<div class="tab-content" id="pills-tabContent">
+									<div class="contenedor-img-procesos tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+										<img src="https://d1ltgr77xghfz9.cloudfront.net/wp-content/uploads/sites/6/2018/03/reclutamento-ejemplo-proceso-1024x412.png" alt="" />
+									</div>
+									<t t-if="oc.ot_servicio">
+										<div class=" contenedor-img-procesos tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+											<img src="https://d1ltgr77xghfz9.cloudfront.net/wp-content/uploads/sites/6/2018/03/reclutamento-ejemplo-proceso-1024x412.png" alt="" />
+										</div>
+									</t>
+								</div>
+							</br>
+						</hr>
+					</hr>
+				</br>
+			</div>
+		</t>
+	</template>
+</odoo>

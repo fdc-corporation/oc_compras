@@ -33,9 +33,16 @@
             <field name="arch" type="xml">
                 <form string="Orden de Compras">
                     <header>
-                        <field name="state" widget="statusbar" options="{'clickable': True}" />
-                        <!-- <button name="action_create_invoice" type="object" string="Crear Factura" class="oe_highlight"/> -->
-                        
+                        <button name="action_post_cotizacion" 
+                        invisible="not cotizacion_id"
+                        type="object" string="Confirmar cotización" class="oe_highlight" />
+
+                        <button type="action" name="%(whatsapp_connector.acrux_chat_message_wizard_action)d" string="Whatsapp" icon="fa-whatsapp" context="{'default_partner_id': cliente.id, 'full_name': True}" />
+
+                        <button name="action_post_cotizacion" type="object" string="Enviar correo"  />
+
+
+                        <field name="state" widget="statusbar" options="{'clickable': True}" />                        
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">

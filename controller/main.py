@@ -44,4 +44,12 @@ class DownloadRefreshController(http.Controller):
         if user_partner :
             domain = [("cliente", "=", user_partner.id )]
             ordenes = request.env["oc.compras"].sudo().search(domain)
+
             return request.render("oc_compras.ordenes_compra_portal", {"ordenes": ordenes})
+
+    @http.route(['/my/compras/orden/<int:id_oc>'], auth="user", website=True, type="http")
+    def get_state_oc (self, id_oc):
+        oc = request.env["oc.compras"].sudo().browse(id_oc)
+        return request.render("oc_compras.oc_state_secuencia", {
+            "oc" : oc,
+        })

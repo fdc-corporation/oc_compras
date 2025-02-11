@@ -50,7 +50,7 @@
 									<t t-esc="oc.name" />
 								</td>
 								<td>
-									<t t-esc="oc.fecha_solicitud" />
+									<t t-esc="oc.fecha_creacion.strftime('%d/%m/%Y')" />
 								</td>
 								<td>
 									<a t-att-href="'/my/orders/' + str(oc.cotizacion_id.id)">
@@ -58,13 +58,19 @@
 									</a>
 								</td>
                                 <td>
-									<span class="estado-oc" t-esc="oc.state.name"></span>
+									<t t-if="not oc.state.secuencia in [4,5,6,7,8]">
+										<span class="estado-oc" t-esc="oc.state.name"></span>
+										<!-- <span class="estado-oc" t-esc="oc.state.secuencia"></span> -->
+									</t>
+									<t t-else="">
+										<span class="estado-oc" >Entrega en Atención</span>
+									</t>
                                 </td>
 								<td>
 									<t t-esc="oc.creado_por.name" />
 								</td>
 								<td>
-									<a class="btn btn-primary " t-att-href="'/my/orden/'">
+									<a class="btn btn-primary " t-att-href="'/my/compras/orden/' + str(oc.id)">
 										<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
 											<path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0" />
 											<path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8m8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7" />

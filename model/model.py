@@ -160,6 +160,43 @@ class OrdenCompras(models.Model):
             "url": f"/web/content/{self.id}/guia_id?download=true",
             "target": "self",
         }
+    
+    def action_set_email (self):
+        template = self.env.ref("oc_compras.template_oc_email")
+        ctx = {
+                'default_model': 'oc.compras',  # Modelo actual
+                'default_res_ids': [self.id],  # ID del registro
+                'default_use_template': True,
+                'default_template_id': template.id,
+                'default_composition_mode': 'comment',  # Modo de composición
+                'force_email': True,
+            }
+
+        return {
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'res_model': 'mail.compose.message',
+                'views': [(False, 'form')],
+                'view_id': False,
+                'target': 'new',
+                'context': ctx,
+            }
+    def action_post_cotizacion(self):
+        self.ensure_one()
+        if not self.cotizacion_id:
+            return
+        if self.cotizacion_id.state != 'draft' and self.cotizacion_id.state != 'sent':
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Error",
+                    "message": "La cotización ya fue confirmada.",
+                    "type": "danger",
+                    "sticky": False,
+                },
+            }
+        self.cotizacion_id.action_confirm()
 
     def action_create_invoice(self):
         self.ensure_one()

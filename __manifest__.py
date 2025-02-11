@@ -25,10 +25,13 @@
         'view/code/ir.cron.xml',
         'view/herencia_view_iherit.xml',
         'data/estados_data_oc.xml',
+        'view/web/state_secuancia_oc_view.xml',
         # VISTAS PARA PORTAL USUARIO
         'view/web/portal_template.xml',
         'view/web/template_ordenes_compra.xml',
         'view/guias/action_guias_vieew.xml',
+        # TEMPLATE DE EMAIL
+        'view/email/template_email_oc.xml',
 
     ],
     'assets': {
