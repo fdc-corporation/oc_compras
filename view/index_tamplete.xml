@@ -39,7 +39,7 @@
 
                         <button type="action" name="%(whatsapp_connector.acrux_chat_message_wizard_action)d" string="Whatsapp" icon="fa-whatsapp" context="{'default_partner_id': cliente.id, 'full_name': True}" />
 
-                        <button name="action_post_cotizacion" type="object" string="Enviar correo"  />
+                        <button name="action_set_email" type="object" string="Enviar correo"  />
 
 
                         <field name="state" widget="statusbar" options="{'clickable': True}" />                        
