@@ -149,3 +149,5 @@ class InventarioOC (models.Model):
                 record.oc_id.state = estado.id
         
         return result
+
+

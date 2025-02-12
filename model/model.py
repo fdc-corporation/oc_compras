@@ -17,9 +17,9 @@ class EstadoOrden(models.Model):
     name = fields.Char(string="Nombre")
     secuencia = fields.Integer(string="Secuencia")
     fold = fields.Boolean(
-        string="Colapsar en Kanban", default=False
+        string="Plegar en flujo", default=False, store=True
     )  # Para colapsar columnas
-
+    # fold_flujo = fields.Boolean(string="Colapsar en flujo", default=False)
 
 class IrAttachment(models.Model):
     _inherit = "ir.attachment"
@@ -88,6 +88,7 @@ class OrdenCompras(models.Model):
     cotizacion_cantidad = fields.Integer(compute="_total_cotizaciones")
     servicios_cantidad = fields.Integer(compute="_total_servicios")
     guias_cantidad = fields.Integer(compute="_total_guias")
+    fold = fields.Boolean(related="state.fold")
 
     def _total_facturas(self):
         self.facturas_cantidad = len(self.factura)
@@ -161,6 +162,7 @@ class OrdenCompras(models.Model):
             "target": "self",
         }
     
+
     def action_set_email (self):
         template = self.env.ref("oc_compras.template_oc_email")
         ctx = {
@@ -181,6 +183,8 @@ class OrdenCompras(models.Model):
                 'target': 'new',
                 'context': ctx,
             }
+
+
     def action_post_cotizacion(self):
         self.ensure_one()
         if not self.cotizacion_id:

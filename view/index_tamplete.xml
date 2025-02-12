@@ -37,7 +37,7 @@
                         invisible="not cotizacion_id"
                         type="object" string="Confirmar cotización" class="oe_highlight" />
 
-                        <button type="action" name="%(whatsapp_connector.acrux_chat_message_wizard_action)d" string="Whatsapp" icon="fa-whatsapp" context="{'default_partner_id': cliente.id, 'full_name': True}" />
+                        <!-- <button type="action" name="%(whatsapp_connector.acrux_chat_message_wizard_action)d" string="Whatsapp" icon="fa-whatsapp" context="{'default_partner_id': cliente.id, 'full_name': True}" /> -->
 
                         <button name="action_set_email" type="object" string="Enviar correo"  />
 
@@ -101,6 +101,7 @@
                                 <group >
                                     <group>
                                         <field name="de"/>
+                                        <field name="fold" invisible="True"/>
                                     </group>
                                     <!-- <group>
                                         <field name="destino"/>
@@ -152,10 +153,12 @@
                 <kanban class="o_kanban_dashboard" default_group_by="state" kanban_default_order="state desc" sample="1">
                     <field name="oc"/>
                     <field name="state"/>
+                    <field name="fold"/>  <!-- Asegurar que fold está definido -->
                     <field name="cliente"/>
                     <field name="cotizacion_id"/>                     
                     <field name="prioridad"/>      
-                    <field name="fecha_solicitud" />               
+                    <field name="fecha_solicitud"/>     
+
                     <templates>
                         <t t-name="kanban-tooltip">
                             <ul class="oe_kanban_tooltip">
@@ -163,17 +166,7 @@
                             </ul>
                         </t>
                         <t t-name="kanban-box">
-                            <div t-attf-class="{{!selection_mode ? 'oe_kanban_color_' + kanban_getcolor(record.color ? record.color.raw_value : 0) : ''}} oe_kanban_card oe_kanban_global_click oe_semantic_html_override">
-                                <div class="o_dropdown_kanban dropdown">
-                                    <!-- <a role="button" class="dropdown-toggle o-no-caret btn" data-bs-toggle="dropdown" data-bs-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
-                                        <span class="fa fa-ellipsis-v"/>
-                                    </a> -->
-                                    <div class="dropdown-menu" role="menu">
-                                        <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Editar...</a></t>
-                                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Eliminar</a></t>
-                                        <ul class="oe_kanban_colorpicker" data-field="color"/>
-                                    </div>
-                                </div>
+                            <div t-attf-class="oe_kanban_global_click oe_semantic_html_override">
                                 <div class="oe_kanban_content" tooltip="kanban-tooltip">
                                     <div class="o_kanban_record_top">
                                         <b class="o_kanban_record_title">
@@ -181,19 +174,18 @@
                                         </b>
                                     </div>
                                     <div class="o_kanban_record_body">
-                                        <span name="oc" t-if="record.oc" ><field name="oc"></field><br></br></span>
-                                        
-                                        <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id" invisible="not cotizacion_id"/><br/></span>
-                                        <div t-if="record.fecha_solicitud" name="fecha_solicitud" invisible="not fecha_solicitud">
+                                        <span name="oc" t-if="record.oc"><field name="oc"/></span>
+                                        <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id"/></span>
+                                        <div t-if="record.fecha_solicitud">
                                             <span>
-                                            <field name="fecha_solicitud" widget="remaining_days" /> - <field name="fecha_solicitud" />
+                                                <field name="fecha_solicitud" widget="remaining_days"/> - <field name="fecha_solicitud"/>
                                             </span>
                                         </div> 
                                     </div>
                                     <div class="o_kanban_record_bottom">
                                         <div class="oe_kanban_bottom_left">
                                             <div class="o_kanban_inline_block ml4 mr4">
-                                                <field name="prioridad" widget="priority"  />
+                                                <field name="prioridad" widget="priority"/>
                                             </div>
                                         </div>
                                         <div class="oe_kanban_bottom_right">
@@ -203,11 +195,15 @@
                                 </div>
                                 <div class="clearfix"/>
                             </div>
+                            
                         </t>
                     </templates>
+
+                    <field name="state" options="{'fold_field': 'fold'}"/>
                 </kanban>
             </field>
         </record>
+
         <!-- Vista de Árbol (Lista) para Orden de Compras -->
         <record id="view_oc_compras_tree" model="ir.ui.view">
             <field name="name">oc.compras.tree</field>
