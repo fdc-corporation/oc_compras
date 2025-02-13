@@ -317,6 +317,8 @@ class OrdenCompras(models.Model):
         for record in self:
             if record.cotizacion_id:
                 record.cotizacion_id.oc_id = record.id
+                if record.oc:
+                    record.cotizacion_id.client_order_ref = record.oc
                 estado_atencion = self.env.ref(
                     "oc_compras.estado_atencion", raise_if_not_found=False
                 )
