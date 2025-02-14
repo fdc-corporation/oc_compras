@@ -82,7 +82,7 @@
                                                             Azure Disctic</t>,<br><br>
                                                         
                                                         Se le notifica que ya su Orden de compra fue registrada para su seguimiento, el asesor(a): <t
-                                                            t-out="object.creado_por.name or ''">Fiorela Gutierrez</t> estará atendiendo sus solicitudes. <br>
+                                                            t-out="object.cliente.user_id.name or object.creado_por.name ">Fiorela Gutierrez</t> estará atendiendo sus solicitudes. <br>
                                                         No dude en contactarse si necesita ayuda.<br><br>
                                                         Saludos,<br>
                                                         <br>
@@ -91,16 +91,14 @@
                                                         </a>
                                                         <br>
 
-                                                        <t t-if="object.creado_por.partner_id">
                                                             <b style="box-sizing:border-box;font-weight:bolder;">
-                                                                <t t-out="object.creado_por.partner_id.name or ''">Marc Demo</t>
+                                                                <t t-out="object.cliente.user_id.name or object.creado_por.partner_id.name">Marc Demo</t>
                                                             </b>
                                                             <br>Correo electrónico: <t
-                                                                t-out="object.creado_por.partner_id.email or ''">
+                                                                t-out="object.cliente.user_id.login or object.creado_por.partner_id.email">
                                                                 mark.brown23@ejemplo.com</t>
-                                                            <br>Teléfono: <t t-out="object.creado_por.partner_id.phone or ''">+1
+                                                            <br>Teléfono: <t t-out="object.cliente.user_id.mobile or object.creado_por.partner_id.mobile">+1
                                                                 650-123-4567</t>
-                                                        </t>
                                                         
                                                     </div>
                                                 </td>
