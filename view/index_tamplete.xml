@@ -87,6 +87,7 @@
                                 <field name="ot_servicio" />                            
                             </group>
                             <group>
+                                <field name="is_finalizado"/>
                                 <field name="fecha_solicitud"/>
                                 <field name="cotizacion_id" options="{'no_quick_create': true, 'no_create_edit': true}" domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
                                 <field name="factura" widget="many2many_tags" invisible="is_sunat"  options="{'no_quick_create': true, 'no_create_edit': true}"  domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
@@ -158,6 +159,7 @@
                     <field name="cotizacion_id"/>                     
                     <field name="prioridad"/>      
                     <field name="fecha_solicitud"/>     
+                    <field name="is_finalizado"/>     
 
                     <templates>
                         <t t-name="kanban-tooltip">
@@ -174,13 +176,16 @@
                                         </b>
                                     </div>
                                     <div class="o_kanban_record_body">
-                                        <span name="oc" t-if="record.oc"><field name="oc"/></span>
+                                        <span name="oc" t-if="record.oc"><field name="oc"/></span><br></br>
                                         <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id"/></span>
-                                        <div t-if="record.fecha_solicitud">
-                                            <span>
-                                                <field name="fecha_solicitud" widget="remaining_days"/> - <field name="fecha_solicitud"/>
-                                            </span>
-                                        </div> 
+                                        <t t-if="not record.is_finalizado">
+                                            <div t-if="record.fecha_solicitud">
+                                                <span>
+                                                    <field name="fecha_solicitud" widget="remaining_days"/> - <field name="fecha_solicitud"/>
+                                                </span>
+                                            </div> 
+                                        </t>
+                                        
                                     </div>
                                     <div class="o_kanban_record_bottom">
                                         <div class="oe_kanban_bottom_left">
