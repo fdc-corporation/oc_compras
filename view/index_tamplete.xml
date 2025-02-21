@@ -178,19 +178,24 @@
                                     <div class="o_kanban_record_body">
                                         <span name="oc" t-if="record.oc"><field name="oc"/><br></br></span>
                                         <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id"/></span>
-                                        <t t-if="record.is_finalizado == False">
+                                        <!-- <t t-if="record.is_finalizado == False"> -->
                                             <div t-if="record.fecha_solicitud">
                                                 <span>
                                                     <field name="fecha_solicitud" widget="remaining_days"/> - <field name="fecha_solicitud"/>
                                                 </span>
                                             </div> 
-                                        </t>
+                                        <!-- </t> -->
                                         
                                     </div>
                                     <div class="o_kanban_record_bottom">
                                         <div class="oe_kanban_bottom_left">
                                             <div class="o_kanban_inline_block ml4 mr4">
                                                 <field name="prioridad" widget="priority"/>
+                                            </div>
+                                        </div>
+                                        <div class="oe_kanban_bottom_center">
+                                            <div class="o_kanban_inline_block ml4 mr4">
+                                                <field name="is_finalizado" />
                                             </div>
                                         </div>
                                         <div class="oe_kanban_bottom_right">
