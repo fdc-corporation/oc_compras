@@ -33,13 +33,13 @@
             <field name="arch" type="xml">
                 <form string="Orden de Compras">
                     <header>
-                        <button name="action_post_cotizacion" 
+                        <!-- <button name="action_post_cotizacion" 
                         invisible="not cotizacion_id"
-                        type="object" string="Confirmar cotización" class="oe_highlight" />
+                        type="object" string="Confirmar cotización" class="oe_highlight" /> -->
 
                         <!-- <button type="action" name="%(whatsapp_connector.acrux_chat_message_wizard_action)d" string="Whatsapp" icon="fa-whatsapp" context="{'default_partner_id': cliente.id, 'full_name': True}" /> -->
 
-                        <button name="action_set_email" type="object" string="Enviar correo"  />
+                        <!-- <button name="action_set_email" type="object" string="Enviar correo"  /> -->
 
 
                         <field name="state" widget="statusbar" options="{'clickable': True}" />                        
@@ -66,7 +66,7 @@
                                         icon="fa-file-text-o">
                                         <field string="Guia" name="guias_cantidad" widget="statinfo"/>
                                 </button>
-                            </div>
+                        </div>
                         <div class="alert alert-warning" role="alert" invisible="not oc_existente">
                         Alerta: La OC ingresada ya existe en otro registro
                         </div>
@@ -102,7 +102,6 @@
                                 <group >
                                     <group>
                                         <field name="de"/>
-                                        <field name="fold" invisible="True"/>
                                     </group>
                                     <!-- <group>
                                         <field name="destino"/>
@@ -126,14 +125,25 @@
 
                                         </tree>
                                     </field>
-                                    <group>
+                                    <!-- <group>
                                         <field name="guia_id" filename="guia_filename"/>
                                         <field invisible="true" name="guia_filename"/>
-                                    </group>
-                                    <group>
+                                    </group> -->
+                                    <!-- <group>
                                         <button invisible="true" name="descargar_guia" type="object" string="Descargar Guía"/>
-                                    </group>
+                                    </group> -->
                                        
+                                </group>
+                            </page>
+                            <page string="Guias">
+                                <group>
+                                    <field name="guias" >
+                                        <tree>
+                                            <field name="name" string="Nombre del archivo"/>
+                                            <field name="guia_firmada" />
+                                            <field name="fecha_registro" />
+                                        </tree>
+                                    </field>
                                 </group>
                             </page>
                         </notebook>
@@ -154,7 +164,6 @@
                 <kanban class="o_kanban_dashboard" default_group_by="state" kanban_default_order="state desc" sample="1">
                     <field name="oc"/>
                     <field name="state"/>
-                    <field name="fold"/>  <!-- Asegurar que fold está definido -->
                     <field name="cliente"/>
                     <field name="cotizacion_id"/>                     
                     <field name="prioridad"/>      
@@ -209,7 +218,6 @@
                         </t>
                     </templates>
 
-                    <field name="state" options="{'fold_field': 'fold'}"/>
                 </kanban>
             </field>
         </record>
