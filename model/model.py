@@ -55,7 +55,7 @@ class OrdenCompras(models.Model):
     body = fields.Html(string="Contenido")
     documentos = fields.Many2many("ir.attachment", string="Adjuntos")
     cliente = fields.Many2one("res.partner", string="Cliente")
-    cotizacion_id = fields.Many2one("sale.order", string="Cotización")
+    cotizacion_id = fields.Many2one("sale.order", string="Cotización(s)")
     factura = fields.Many2many("account.move", string="Factura")
     state = fields.Many2one(
         "estado.orden",
@@ -288,8 +288,9 @@ class OrdenCompras(models.Model):
         for record in self:
             estado = self.ruta_estado
             estado_actual = record.state.name
-            estado = str(estado) + f" - { str(estado_actual) }"
-            record.ruta_estado = estado
+            if estado_actual not in estado:
+                estado = str(estado) + f" - { str(estado_actual) }"
+                record.ruta_estado = estado
 
     def notificacion_facturar(self):
         group = self.env.ref(
