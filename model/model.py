@@ -90,6 +90,7 @@ class OrdenCompras(models.Model):
     guias_cantidad = fields.Integer(compute="_total_guias")
     fold = fields.Boolean(related="state.fold")
     is_finalizado = fields.Boolean(string="La OC esta finalizado", help='La OC ya esta finalizado')
+    cotizacion_preview_html = fields.Html(string="Vista Previa", compute="_compute_cotizacion_preview_html")
 
     def _total_facturas(self):
         self.facturas_cantidad = len(self.factura)
@@ -286,10 +287,11 @@ class OrdenCompras(models.Model):
 
     def write_ruta_estado(self):
         for record in self:
-            estado = self.ruta_estado
-            estado_actual = record.state.name
-            estado = str(estado) + f" - { str(estado_actual) }"
-            record.ruta_estado = estado
+            estado = str(record.ruta_estado)
+            estado_actual = str(record.state.name)
+            if estado_actual not in estado:
+                estado = str(estado) + f" - { str(estado_actual) }"
+                record.ruta_estado = estado
 
     def notificacion_facturar(self):
         group = self.env.ref(
@@ -314,6 +316,7 @@ class OrdenCompras(models.Model):
                 record.cliente = record.cotizacion_id.partner_id.id
                 # record.ot_servicio = record.cotizacion_id.ots.id
 
+    @api.onchange("oc","cotizacion_id")
     def registrar_cotizacion(self):
         for record in self:
             if record.cotizacion_id:
@@ -325,6 +328,17 @@ class OrdenCompras(models.Model):
                 )
                 if estado_atencion:
                     record.state = estado_atencion.id
+    @api.depends('cotizacion_id')
+    def _compute_cotizacion_preview_html(self):
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        for record in self:
+            if record.cotizacion_id:
+                url = f"{base_url}/web#id={record.cotizacion_id.id}&view_type=form&model=sale.order"
+                record.cotizacion_preview_html = f'<iframe src="{url}" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>'
+            else:
+                record.cotizacion_preview_html = "<p>No hay vista previa disponible.</p>"
+
+
 
     def registrar_guia(self):
         if self.guia_id:

@@ -27,19 +27,14 @@
         </record>
 
         <!-- Vista de Formulario para Orden de Compras -->
-        <record id="view_oc_compras_form" model="ir.ui.view">
+        <record id="index_view_oc_compras_form" model="ir.ui.view">
             <field name="name">oc.compras.form</field>
             <field name="model">oc.compras</field>
             <field name="arch" type="xml">
                 <form string="Orden de Compras">
                     <header>
-                        <!-- <button name="action_post_cotizacion" 
-                        invisible="not cotizacion_id"
-                        type="object" string="Confirmar cotización" class="oe_highlight" /> -->
 
-                        <!-- <button type="action" name="%(whatsapp_connector.acrux_chat_message_wizard_action)d" string="Whatsapp" icon="fa-whatsapp" context="{'default_partner_id': cliente.id, 'full_name': True}" /> -->
-
-                        <!-- <button name="action_set_email" type="object" string="Enviar correo"  /> -->
+                        <button name="action_set_email" type="object" string="Enviar correo"  />
 
 
                         <field name="state" widget="statusbar" options="{'clickable': True}" />                        
@@ -84,20 +79,30 @@
                                 <field name="cliente" />
                                 <field name="oc" />
                                 <field name="oc_existente" invisible="True" />    
-                                <field name="ot_servicio" />                            
+                                <field name="ot_servicio" />                   
+                                <field name="guia_generada" />         
                             </group>
                             <group>
                                 <field name="is_finalizado"/>
                                 <field name="fecha_solicitud"/>
-                                <field name="cotizacion_id" options="{'no_quick_create': true, 'no_create_edit': true}" domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
+                                <field name="cotizacion_id" widget="many2one" options="{'no_quick_create': true, 'no_create_edit': true}" domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
                                 <field name="factura" widget="many2many_tags" invisible="is_sunat"  options="{'no_quick_create': true, 'no_create_edit': true}"  domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
+                                
                                 <field name="is_sunat"   />
                                 <field name="factura_sunat"  invisible="not is_sunat"  />
                                 <field name="prioridad" widget="priority"  />
-                                <field name="ruta_estado" invisible="1" />
+                                <field name="ruta_estado" />
+
                             </group>
                         </group>
                         <notebook>
+                            <!-- <page>
+                                <group>
+                                    <group>
+                                        <field name="cotizacion_preview_html" invisible="not cotizacion_id" />
+                                    </group>
+                                </group>    
+                            </page> -->
                             <page name="correo" string="Datos de correo">
                                 <group >
                                     <group>
@@ -125,27 +130,17 @@
 
                                         </tree>
                                     </field>
-                                    <!-- <group>
+                                    <group>
                                         <field name="guia_id" filename="guia_filename"/>
                                         <field invisible="true" name="guia_filename"/>
-                                    </group> -->
-                                    <!-- <group>
+                                    </group>
+                                    <group>
                                         <button invisible="true" name="descargar_guia" type="object" string="Descargar Guía"/>
-                                    </group> -->
+                                    </group>
                                        
                                 </group>
                             </page>
-                            <page string="Guias">
-                                <group>
-                                    <field name="guias" >
-                                        <tree>
-                                            <field name="name" string="Nombre del archivo"/>
-                                            <field name="guia_firmada" />
-                                            <field name="fecha_registro" />
-                                        </tree>
-                                    </field>
-                                </group>
-                            </page>
+                            
                         </notebook>
                         <div class="oe_chatter">
                                             <field name="message_follower_ids" widget="mail_followers" />
