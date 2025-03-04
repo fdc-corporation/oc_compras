@@ -172,7 +172,7 @@
 												<!-- RUTA DE ENTREGA Y SERVICIO -->
 												<t t-if="entrega in ruta_estado and servicio in ruta_estado">
 													<!-- ENTREGA EN ATENCIOMN SIN SERVIVICIO -->
-													<t t-if="entrega in ruta_estado and servicio in ruta_estado and guia not in ruta_estado and factura not in ruta_estado">
+													<t t-if="entrega in ruta_estado and servicio in ruta_estado and factura not in ruta_estado">
 														<img src="/oc_compras/static/description/1-2-6-3.png" style="width:1244px;" />
 													</t>
 													<!-- GUIA FIRMADA Y REGISTRADA -->
