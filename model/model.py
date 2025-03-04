@@ -66,7 +66,7 @@ class OrdenCompras(models.Model):
     oc = fields.Char(string="N° de OC")
     guia_id = fields.Binary(string="Guia Firmada")
     guia_filename = fields.Char(string="Nombre del Archivo")
-    ruta_estado = fields.Text(string="Ruta de Estados")
+    ruta_estado = fields.Text(string="Ruta de Estados", default="Nueva Solicitud")
     guia_generada = fields.Many2one("stock.picking", string="Guia Generada")
     prioridad = fields.Selection(
         [
