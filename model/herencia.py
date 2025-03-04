@@ -123,7 +123,7 @@ class InventarioOC (models.Model):
     #                 record.oc_id.state = estado.id
     #     return result
 
-    def action_generate_eguide (self):
+    def action_generate_eguide(self):
         result = super(InventarioOC, self).action_generate_eguide()
         
         for record in self:

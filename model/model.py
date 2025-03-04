@@ -226,7 +226,8 @@ class OrdenCompras(models.Model):
     @api.model
     def create(self, vals):
         vals["name"] = self.env["ir.sequence"].next_by_code("oc.compras")
-
+        if "state" in vals:
+            self.write_ruta_estado()
         return super(OrdenCompras, self).create(vals)
 
     def write(self, vals):

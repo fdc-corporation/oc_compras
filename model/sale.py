@@ -80,7 +80,7 @@ class SaleOrder (models.Model):
         orden = self.env['stock.picking'].search([
             ('origin', '=', name_cotizacion),
             ('state', '=', 'assigned'),
-            ('products_availability', '=', 'Disponible')
+            # ('products_availability', '=', 'Disponible')
         ])
         print(orden)
         if orden:
