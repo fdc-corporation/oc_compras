@@ -10,6 +10,56 @@ class SaleOrder (models.Model):
     oc_id = fields.Many2one('oc.compras', string="OC", ondelete="set null",)
     state = fields.Selection( selection_add=[("facturado", "Facturado")])
 
+
+
+    @api.model
+    def create(self, vals):
+        # Crear el registro con super y luego recalcular el campo compute
+        res = super(SaleOrder, self).create(vals)
+        if 'partner_id' in vals:
+            self._compute_res_partner()            
+        return res
+
+    def write(self, vals):
+        res = super(SaleOrder, self).write(vals)
+        # Verifica si hay cambios en las líneas de pedido
+        if 'partner_id' in vals:
+            self._compute_res_partner()
+        return res  
+
+    @api.depends("partner_id")
+    def _compute_res_partner(self):
+        for order in self:
+            if order.partner_id:
+                partner = order.partner_id
+                if partner.company_type == 'person':
+                    # Si es persona, usa su padre como empresa si existe
+                    order.partner_invoice_id = partner.parent_id or partner
+
+                    # Buscar dirección de entrega de la empresa (padre)
+                    shipping = order.env["res.partner"].sudo().search([
+                        ("parent_id", "=", partner.parent_id.id),
+                        ("type", "=", "delivery")
+                    ], limit=1)
+
+                    order.partner_shipping_id = shipping or partner
+                else:
+                    # Si es empresa, se toma como principal
+                    order.partner_invoice_id = partner
+
+                    # Buscar dirección de entrega de esa empresa
+                    shipping = order.env["res.partner"].sudo().search([
+                        ("parent_id", "=", partner.id),
+                        ("type", "=", "delivery")
+                    ], limit=1)
+
+                    order.partner_shipping_id = shipping or partner
+            else:
+                order.partner_invoice_id = False
+                order.partner_shipping_id = False
+
+
+
     def action_confirm(self):
         result = super(SaleOrder, self).action_confirm()
         for record in self:
