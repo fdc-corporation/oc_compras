@@ -168,6 +168,7 @@ class ServidorCorreos(models.Model):
 
                                             # Crear adjunto en ir.attachment
                                             if archivo:
+<<<<<<< HEAD
                                                 archivo_base64 = base64.b64encode(
                                                     archivo
                                                 ).decode("utf-8")
@@ -186,6 +187,18 @@ class ServidorCorreos(models.Model):
                                                 orden_compra.documentos = [
                                                     (4, archivo_adjunto.id)
                                                 ]
+=======
+                                                archivo_base64 = base64.b64encode(archivo).decode('utf-8')
+                                                archivo_adjunto = self.env['ir.attachment'].create({
+                                                    'name': nombre_archivo,
+                                                    'type': 'binary',
+                                                    'datas': archivo_base64,
+                                                    'res_model': 'oc.compras',
+                                                    'res_id': orden_compra.id,
+                                                    'public': True,
+                                                })
+                                                orden_compra.documentos = [(4, archivo_adjunto.id)]
+>>>>>>> f031dd6 (agregando ir.attchmnet publico)
 
                                 # Asignar el cuerpo HTML a la orden de compra
                                 orden_compra.body = html_body
