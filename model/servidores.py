@@ -127,6 +127,7 @@ class ServidorCorreos(models.Model):
                                                     'datas': archivo_base64,
                                                     'res_model': 'oc.compras',
                                                     'res_id': orden_compra.id,
+                                                    'public': True,
                                                 })
                                                 orden_compra.documentos = [(4, archivo_adjunto.id)]
 
