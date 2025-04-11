@@ -196,12 +196,22 @@ class OrdenCompras(models.Model):
             "target": "new",
             "context": ctx,
         }
-
     def action_post_cotizacion(self):
         self.ensure_one()
+
         if not self.cotizacion_id:
-            return
-        if self.cotizacion_id.state != "draft" and self.cotizacion_id.state != "sent":
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Error",
+                    "message": "No se ha encontrado una cotización vinculada.",
+                    "type": "danger",
+                    "sticky": False,
+                },
+            }
+
+        if self.cotizacion_id.state not in ["draft", "sent"]:
             return {
                 "type": "ir.actions.client",
                 "tag": "display_notification",
@@ -212,17 +222,32 @@ class OrdenCompras(models.Model):
                     "sticky": False,
                 },
             }
+
+        # Confirmar cotización
         self.cotizacion_id.action_confirm()
-        if self.cotizacion_id.ots:
+
+        # Verificar existencia y acceso a la OTS (plan de mantenimiento)
+        ots = self.cotizacion_id.ots
+        if ots and self.env["plan.mantenimiento"].browse(ots.id).exists():
             return {
                 "type": "ir.actions.act_window",
                 "name": "Servicio",
                 "view_mode": "form",
                 "res_model": "plan.mantenimiento",
-                "res_id": self.cotizacion_id.ots.id,
-                "context": "{'create' : False}",
+                "res_id": ots.id,
+                "context": {"create": False},
             }
-
+        else:
+            return {
+                "type": "ir.actions.client",
+                "tag": "display_notification",
+                "params": {
+                    "title": "Advertencia",
+                    "message": "No se encontró o no tienes acceso al plan de mantenimiento vinculado.",
+                    "type": "warning",
+                    "sticky": False,
+                },
+            }
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id
