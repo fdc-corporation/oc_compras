@@ -224,12 +224,12 @@ class OrdenCompras(models.Model):
 
         # Verificar existencia y acceso a la OTS (plan de mantenimiento)
         ots = self.cotizacion_id.ots
-        if ots and self.env["plan.mantenimiento"].browse(ots.id).exists():
+        if ots and self.env["tarea.mantenimiento"].browse(ots.id).exists():
             return {
                 "type": "ir.actions.act_window",
                 "name": "Servicio",
                 "view_mode": "form",
-                "res_model": "plan.mantenimiento",
+                "res_model": "tarea.mantenimiento",
                 "res_id": ots.id,
                 "context": {"create": False},
             }
@@ -250,11 +250,11 @@ class OrdenCompras(models.Model):
         if ots:
             return {
                 "type": "ir.actions.act_window",
-                "name": "Servicio",
+                "name": "Tarea mantenimiento",
                 "view_mode": "form",
-                "res_model": "plan.mantenimiento",
-                "res_id": ots.id,
-                "context": {"create": False},
+                "res_model": "tarea.mantenimiento",
+                "res_id": self.cotizacion_id.ots.id,
+                "context": "{'create' : False}",
             }
 
     def action_create_invoice(self):
