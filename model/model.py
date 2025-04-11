@@ -254,7 +254,7 @@ class OrdenCompras(models.Model):
 
     def ir_servicio(self):
         ots = self.cotizacion_id.ots
-        if ots and self.env["plan.mantenimiento"].browse(ots.id).exists():
+        if ots:
             return {
                 "type": "ir.actions.act_window",
                 "name": "Servicio",
