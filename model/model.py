@@ -1,6 +1,7 @@
 from odoo import _, models, fields, api
 from datetime import datetime
 from odoo.exceptions import UserError
+import time
 
 # class AdjuntosCorreo (models.Model):
 #     _name = 'adjuntos.correo'
@@ -218,6 +219,7 @@ class OrdenCompras(models.Model):
 
         # Confirmar cotización
         self.cotizacion_id.action_confirm()
+        time.sleep(1)
 
         # Verificar existencia y acceso a la OTS (plan de mantenimiento)
         ots = self.cotizacion_id.ots
