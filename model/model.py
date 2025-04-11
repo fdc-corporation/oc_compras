@@ -194,15 +194,6 @@ class OrdenCompras(models.Model):
         self.ensure_one()
         if not self.cotizacion_id:
             return
-        if self.cotizacion_id.ots:
-            return {
-                "type": "ir.actions.act_window",
-                "name": "Servicio",
-                "view_mode": "form",
-                "res_model": "plan.mantenimiento",
-                "res_id": self.cotizacion_id.ots.id,
-                "context": "{'create' : False}",
-            }
         if self.cotizacion_id.state != "draft" and self.cotizacion_id.state != "sent":
             return {
                 "type": "ir.actions.client",
@@ -215,6 +206,15 @@ class OrdenCompras(models.Model):
                 },
             }
         self.cotizacion_id.action_confirm()
+        if self.cotizacion_id.ots:
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Servicio",
+                "view_mode": "form",
+                "res_model": "plan.mantenimiento",
+                "res_id": self.cotizacion_id.ots.id,
+                "context": "{'create' : False}",
+            }
 
     def action_create_invoice(self):
         self.ensure_one()
