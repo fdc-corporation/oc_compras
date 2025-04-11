@@ -197,6 +197,7 @@ class OrdenCompras(models.Model):
             "target": "new",
             "context": ctx,
         }
+
     def action_post_cotizacion(self):
         self.ensure_one()
 
@@ -250,6 +251,19 @@ class OrdenCompras(models.Model):
                     "sticky": False,
                 },
             }
+
+    def ir_servicio(self):
+        ots = self.cotizacion_id.ots
+        if ots and self.env["plan.mantenimiento"].browse(ots.id).exists():
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Servicio",
+                "view_mode": "form",
+                "res_model": "plan.mantenimiento",
+                "res_id": ots.id,
+                "context": {"create": False},
+            }
+
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id

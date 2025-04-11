@@ -35,6 +35,7 @@
                     <header>
 
                         <button name="action_set_email" type="object" string="Enviar correo"  />
+                        <button name="ir_servicio" type="object" string="Ir al servicio" invisible="not cotizacion_id"  />
 
                         <field name="active" invisible="1" />
                         <field name="state" widget="statusbar" options="{'clickable': True}" />                        
