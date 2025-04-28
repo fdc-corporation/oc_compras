@@ -9,6 +9,7 @@ class FacturaOC (models.Model):
     oc_id = fields.Many2one('oc.compras', string="OC")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     def write(self, vals):
         res = super(FacturaOC, self).write(vals)
@@ -21,6 +22,8 @@ class FacturaOC (models.Model):
 
 
 >>>>>>> 4badc83 (update funcion)
+=======
+>>>>>>> b7d1b38 (update funcion)
     def action_post (self):
         result = super(FacturaOC, self).action_post()
 
@@ -40,6 +43,7 @@ class FacturaOC (models.Model):
 
 
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     # def factura_pagado_oc_update(self):
@@ -63,7 +67,7 @@ class AccountPayment(models.Model):
         for payment in self:
             for move in payment.reconciled_invoice_ids:
                 print(f"Factura {move.name} reconciliada con pago {payment.name}")
-                move.factura_pagado_oc_update()
+                # move.factura_pagado_oc_update()
         return res
 
 
@@ -76,10 +80,12 @@ class AccountPaymentRegister(models.TransientModel):
             for move in record.line_ids.move_id:
                 if move.state == 'posted':
                     print(f"Pagando factura: {move.name}")
-                    move.factura_pagado_oc_update()
+                    # move.factura_pagado_oc_update()
         return res
 
 >>>>>>> 4badc83 (update funcion)
+=======
+>>>>>>> b7d1b38 (update funcion)
 
 
 class ComprasOC (models.Model):
