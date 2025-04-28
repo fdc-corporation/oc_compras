@@ -8,16 +8,6 @@ class FacturaOC (models.Model):
 
     oc_id = fields.Many2one('oc.compras', string="OC")
 
-    def write(self, vals):
-        res = super(FacturaOC, self).write(vals)
-
-        # Verificar si el estado de pago ha cambiado
-        if 'payment_state' in vals:
-            print('-----------EJECUCION DEL METODO PARA REGISTRO DEL PAGO---------------')
-            # self.factura_pagado_oc_update()
-        return res
-
-
     def action_post (self):
         result = super(FacturaOC, self).action_post()
 
@@ -36,43 +26,6 @@ class FacturaOC (models.Model):
         return result
 
 
-
-    # def factura_pagado_oc_update(self):
-    #     for record in self:
-    #         if record.oc_id:
-    #             print('-----------------RECORD_OC_ID')
-    #             print(record.oc_id)
-    #             estado = self.env.ref('oc_compras.estado_factura_cancelada', raise_if_not_found=False)
-    #             if estado :                   
-    #                 record.oc_id.state = estado.id
-    #                 print('-----------------ESTADO ENCONTRADO')
-    #                 print(estado)
-
-
-
-class AccountPayment(models.Model):
-    _inherit = 'account.payment'
-
-    def post(self):
-        res = super(AccountPayment, self).post()
-        for payment in self:
-            for move in payment.reconciled_invoice_ids:
-                print(f"Factura {move.name} reconciliada con pago {payment.name}")
-                # move.factura_pagado_oc_update()
-        return res
-
-
-class AccountPaymentRegister(models.TransientModel):
-    _inherit = 'account.payment.register'
-
-    def action_create_payments(self):
-        res = super(AccountPaymentRegister, self).action_create_payments()
-        for record in self:
-            for move in record.line_ids.move_id:
-                if move.state == 'posted':
-                    print(f"Pagando factura: {move.name}")
-                    # move.factura_pagado_oc_update()
-        return res
 
 
 
