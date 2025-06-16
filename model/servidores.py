@@ -106,6 +106,7 @@ class ServidorCorreos(models.Model):
                             # Decodificar el remitente (From)
                             from_ = msg.get("From")
                             if isinstance(from_, bytes):
+<<<<<<< HEAD
                                 from_ = from_.decode("utf-8", errors="replace")
                             palabras = subject.split()
                             valores_oc = [
@@ -131,6 +132,11 @@ class ServidorCorreos(models.Model):
                                 "PEDIDO:",
                             ]
                             if any(palabra in valores_oc for palabra in palabras):
+=======
+                                from_ = from_.decode('utf-8', errors='replace')
+                            valores_oc = ['OC', 'Order', "Orden", "orden", 'orden de compra', 'Orden de Compra', 'Orden de compra', 'Purchase', 'PO', 'ORDEN DE COMPRA', 'oc' ]
+                            if any(valor in subject for valor in valores_oc) :
+>>>>>>> 45b3b99 (agregamdo palabras claves)
                                 # Crear la orden de compra
                                 orden_compra = self.env["oc.compras"].create(
                                     {
