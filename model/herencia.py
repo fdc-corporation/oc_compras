@@ -8,9 +8,6 @@ class FacturaOC (models.Model):
 
     oc_id = fields.Many2one('oc.compras', string="OC")
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
     def write(self, vals):
         res = super(FacturaOC, self).write(vals)
 
@@ -21,9 +18,6 @@ class FacturaOC (models.Model):
         return res
 
 
->>>>>>> 4badc83 (update funcion)
-=======
->>>>>>> b7d1b38 (update funcion)
     def action_post (self):
         result = super(FacturaOC, self).action_post()
 
@@ -43,9 +37,7 @@ class FacturaOC (models.Model):
 
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
+
     # def factura_pagado_oc_update(self):
     #     for record in self:
     #         if record.oc_id:
@@ -83,9 +75,6 @@ class AccountPaymentRegister(models.TransientModel):
                     # move.factura_pagado_oc_update()
         return res
 
->>>>>>> 4badc83 (update funcion)
-=======
->>>>>>> b7d1b38 (update funcion)
 
 
 class ComprasOC (models.Model):

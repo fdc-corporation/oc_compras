@@ -91,20 +91,9 @@ class OrdenCompras(models.Model):
     servicios_cantidad = fields.Integer(compute="_total_servicios")
     guias_cantidad = fields.Integer(compute="_total_guias")
     fold = fields.Boolean(related="state.fold")
-<<<<<<< HEAD
     is_finalizado = fields.Boolean(string="La OC esta finalizado", help='La OC ya esta finalizado')
     cotizacion_preview_html = fields.Html(string="Vista Previa", compute="_compute_cotizacion_preview_html")
-    active = fields.Boolean(default=True)
-=======
-    is_finalizado = fields.Boolean(
-        string="La OC esta finalizado", help="La OC ya esta finalizado"
-    )
-    cotizacion_preview_html = fields.Html(
-        string="Vista Previa", compute="_compute_cotizacion_preview_html"
-    )
->>>>>>> 8b8e376 (agregando redireccion)
 
-    
     def _total_facturas(self):
         self.facturas_cantidad = len(self.factura)
 
