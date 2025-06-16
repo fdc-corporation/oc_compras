@@ -1,3 +1,4 @@
+from odoo import models, fields, api, _
 import imaplib
 import email
 from email.header import decode_header
@@ -106,6 +107,7 @@ class ServidorCorreos(models.Model):
                             # Decodificar el remitente (From)
                             from_ = msg.get("From")
                             if isinstance(from_, bytes):
+<<<<<<< HEAD
                                 from_ = from_.decode("utf-8", errors="replace")
                             valores_oc = [
                                 "OC",
@@ -125,6 +127,12 @@ class ServidorCorreos(models.Model):
                                 "oc:",
                             ]
                             if any(valor in subject for valor in valores_oc):
+=======
+                                from_ = from_.decode('utf-8', errors='replace')
+                            palabras = subject.split()
+                            valores_oc = ['OC', 'Order', 'OC ', 'Orden', 'orden', 'orden de compra', 'Orden de Compra', 'Orden de compra', 'Purchase', 'PO','PEDIDO', 'ORDEN', 'oc', 'PEDIDO', 'ORDEN DE COMPRA:', 'PEDIDO:']
+                            if any(palabra in valores_oc for palabra in palabras):
+>>>>>>> a8502b25357140fd46c5451f5933ddde41daff23
                                 # Crear la orden de compra
                                 orden_compra = self.env["oc.compras"].create(
                                     {
