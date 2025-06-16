@@ -111,7 +111,9 @@ class ServidorCorreos(models.Model):
                                 "OC",
                                 "Order",
                                 "Orden",
+                                "Orden ",
                                 "orden",
+                                "orden ",
                                 "orden de compra",
                                 "Orden de Compra",
                                 "Orden de compra",
@@ -119,6 +121,8 @@ class ServidorCorreos(models.Model):
                                 "PO",
                                 "ORDEN DE COMPRA",
                                 "oc",
+                                "oc: ",
+                                "oc:",
                             ]
                             if any(valor in subject for valor in valores_oc):
                                 # Crear la orden de compra

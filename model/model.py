@@ -1,7 +1,6 @@
 from odoo import _, models, fields, api
 from datetime import datetime
 from odoo.exceptions import UserError
-import time
 
 # class AdjuntosCorreo (models.Model):
 #     _name = 'adjuntos.correo'
@@ -21,7 +20,6 @@ class EstadoOrden(models.Model):
         string="Plegar en flujo", default=False, store=True
     )  # Para colapsar columnas
     # fold_flujo = fields.Boolean(string="Colapsar en flujo", default=False)
-
 
 class IrAttachment(models.Model):
     _inherit = "ir.attachment"
@@ -91,13 +89,11 @@ class OrdenCompras(models.Model):
     servicios_cantidad = fields.Integer(compute="_total_servicios")
     guias_cantidad = fields.Integer(compute="_total_guias")
     fold = fields.Boolean(related="state.fold")
-    is_finalizado = fields.Boolean(
-        string="La OC esta finalizado", help="La OC ya esta finalizado"
-    )
-    cotizacion_preview_html = fields.Html(
-        string="Vista Previa", compute="_compute_cotizacion_preview_html"
-    )
+    is_finalizado = fields.Boolean(string="La OC esta finalizado", help='La OC ya esta finalizado')
+    cotizacion_preview_html = fields.Html(string="Vista Previa", compute="_compute_cotizacion_preview_html")
+    active = fields.Boolean(default=True)
 
+    
     def _total_facturas(self):
         self.facturas_cantidad = len(self.factura)
 
@@ -169,44 +165,35 @@ class OrdenCompras(models.Model):
             "url": f"/web/content/{self.id}/guia_id?download=true",
             "target": "self",
         }
+    
 
-    def action_set_email(self):
+    def action_set_email (self):
         template = self.env.ref("oc_compras.template_oc_email")
         ctx = {
-            "default_model": "oc.compras",  # Modelo actual
-            "default_res_ids": [self.id],  # ID del registro
-            "default_use_template": True,
-            "default_template_id": template.id,
-            "default_composition_mode": "comment",  # Modo de composición
-            "force_email": True,
-        }
+                'default_model': 'oc.compras',  # Modelo actual
+                'default_res_ids': [self.id],  # ID del registro
+                'default_use_template': True,
+                'default_template_id': template.id,
+                'default_composition_mode': 'comment',  # Modo de composición
+                'force_email': True,
+            }
 
         return {
-            "type": "ir.actions.act_window",
-            "view_mode": "form",
-            "res_model": "mail.compose.message",
-            "views": [(False, "form")],
-            "view_id": False,
-            "target": "new",
-            "context": ctx,
-        }
+                'type': 'ir.actions.act_window',
+                'view_mode': 'form',
+                'res_model': 'mail.compose.message',
+                'views': [(False, 'form')],
+                'view_id': False,
+                'target': 'new',
+                'context': ctx,
+            }
+
 
     def action_post_cotizacion(self):
         self.ensure_one()
-
         if not self.cotizacion_id:
-            return {
-                "type": "ir.actions.client",
-                "tag": "display_notification",
-                "params": {
-                    "title": "Error",
-                    "message": "No se ha encontrado una cotización vinculada.",
-                    "type": "danger",
-                    "sticky": False,
-                },
-            }
-
-        if self.cotizacion_id.state not in ["draft", "sent"]:
+            return
+        if self.cotizacion_id.state != 'draft' and self.cotizacion_id.state != 'sent':
             return {
                 "type": "ir.actions.client",
                 "tag": "display_notification",
@@ -217,45 +204,7 @@ class OrdenCompras(models.Model):
                     "sticky": False,
                 },
             }
-
-        # Confirmar cotización
         self.cotizacion_id.action_confirm()
-        time.sleep(1)
-
-        # Verificar existencia y acceso a la OTS (plan de mantenimiento)
-        ots = self.cotizacion_id.ots
-        if ots and self.env["tarea.mantenimiento"].browse(ots.id).exists():
-            return {
-                "type": "ir.actions.act_window",
-                "name": "Servicio",
-                "view_mode": "form",
-                "res_model": "tarea.mantenimiento",
-                "res_id": ots.id,
-                "context": {"create": False},
-            }
-        else:
-            return {
-                "type": "ir.actions.client",
-                "tag": "display_notification",
-                "params": {
-                    "title": "Advertencia",
-                    "message": "No se encontró o no tienes acceso al plan de mantenimiento vinculado.",
-                    "type": "warning",
-                    "sticky": False,
-                },
-            }
-
-    def ir_servicio(self):
-        ots = self.cotizacion_id.ots
-        if ots:
-            return {
-                "type": "ir.actions.act_window",
-                "name": "Tarea mantenimiento",
-                "view_mode": "form",
-                "res_model": "tarea.mantenimiento",
-                "res_id": self.cotizacion_id.ots.id,
-                "context": "{'create' : False}",
-            }
 
     def action_create_invoice(self):
         self.ensure_one()
@@ -370,7 +319,7 @@ class OrdenCompras(models.Model):
                 record.cliente = record.cotizacion_id.partner_id.id
                 # record.ot_servicio = record.cotizacion_id.ots.id
 
-    @api.onchange("oc", "cotizacion_id")
+    @api.onchange("oc","cotizacion_id")
     def registrar_cotizacion(self):
         for record in self:
             if record.cotizacion_id:
@@ -382,18 +331,17 @@ class OrdenCompras(models.Model):
                 )
                 if estado_atencion:
                     record.state = estado_atencion.id
-
-    @api.depends("cotizacion_id")
+    @api.depends('cotizacion_id')
     def _compute_cotizacion_preview_html(self):
-        base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
+        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         for record in self:
             if record.cotizacion_id:
                 url = f"{base_url}/web#id={record.cotizacion_id.id}&view_type=form&model=sale.order"
                 record.cotizacion_preview_html = f'<iframe src="{url}" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>'
             else:
-                record.cotizacion_preview_html = (
-                    "<p>No hay vista previa disponible.</p>"
-                )
+                record.cotizacion_preview_html = "<p>No hay vista previa disponible.</p>"
+
+
 
     def registrar_guia(self):
         if self.guia_id:
