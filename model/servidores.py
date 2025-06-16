@@ -106,37 +106,9 @@ class ServidorCorreos(models.Model):
                             # Decodificar el remitente (From)
                             from_ = msg.get("From")
                             if isinstance(from_, bytes):
-<<<<<<< HEAD
-                                from_ = from_.decode("utf-8", errors="replace")
-                            palabras = subject.split()
-                            valores_oc = [
-                                "OC",
-                                "OC:",
-                                "oc: ",
-                                "oc:",
-                                "OC: ",
-                                "Order",
-                                "OC ",
-                                "Orden",
-                                "orden",
-                                "orden de compra",
-                                "Orden de Compra",
-                                "Orden de compra",
-                                "Purchase",
-                                "PO",
-                                "PEDIDO",
-                                "ORDEN",
-                                "oc",
-                                "PEDIDO",
-                                "ORDEN DE COMPRA:",
-                                "PEDIDO:",
-                            ]
-                            if any(palabra in valores_oc for palabra in palabras):
-=======
                                 from_ = from_.decode('utf-8', errors='replace')
                             valores_oc = ['OC', 'Order', "Orden", "orden", 'orden de compra', 'Orden de Compra', 'Orden de compra', 'Purchase', 'PO', 'ORDEN DE COMPRA', 'oc' ]
                             if any(valor in subject for valor in valores_oc) :
->>>>>>> 45b3b99 (agregamdo palabras claves)
                                 # Crear la orden de compra
                                 orden_compra = self.env["oc.compras"].create(
                                     {
@@ -168,26 +140,6 @@ class ServidorCorreos(models.Model):
 
                                             # Crear adjunto en ir.attachment
                                             if archivo:
-<<<<<<< HEAD
-                                                archivo_base64 = base64.b64encode(
-                                                    archivo
-                                                ).decode("utf-8")
-                                                archivo_adjunto = self.env[
-                                                    "ir.attachment"
-                                                ].create(
-                                                    {
-                                                        "name": nombre_archivo,
-                                                        "type": "binary",
-                                                        "datas": archivo_base64,
-                                                        "res_model": "oc.compras",
-                                                        "res_id": orden_compra.id,
-                                                        "public": True,
-                                                    }
-                                                )
-                                                orden_compra.documentos = [
-                                                    (4, archivo_adjunto.id)
-                                                ]
-=======
                                                 archivo_base64 = base64.b64encode(archivo).decode('utf-8')
                                                 archivo_adjunto = self.env['ir.attachment'].create({
                                                     'name': nombre_archivo,
@@ -198,7 +150,6 @@ class ServidorCorreos(models.Model):
                                                     'public': True,
                                                 })
                                                 orden_compra.documentos = [(4, archivo_adjunto.id)]
->>>>>>> f031dd6 (agregando ir.attchmnet publico)
 
                                 # Asignar el cuerpo HTML a la orden de compra
                                 orden_compra.body = html_body
