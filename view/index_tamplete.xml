@@ -36,7 +36,7 @@
 
                         <button name="action_set_email" type="object" string="Enviar correo"  />
 
-
+                        <field name="active" invisible="1" />
                         <field name="state" widget="statusbar" options="{'clickable': True}" />                        
                     </header>
                     <sheet>
