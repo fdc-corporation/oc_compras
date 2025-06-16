@@ -106,9 +106,21 @@ class ServidorCorreos(models.Model):
                             # Decodificar el remitente (From)
                             from_ = msg.get("From")
                             if isinstance(from_, bytes):
-                                from_ = from_.decode('utf-8', errors='replace')
-                            valores_oc = ['OC', 'Order', "Orden", "orden", 'orden de compra', 'Orden de Compra', 'Orden de compra', 'Purchase', 'PO', 'ORDEN DE COMPRA', 'oc' ]
-                            if any(valor in subject for valor in valores_oc) :
+                                from_ = from_.decode("utf-8", errors="replace")
+                            valores_oc = [
+                                "OC",
+                                "Order",
+                                "Orden",
+                                "orden",
+                                "orden de compra",
+                                "Orden de Compra",
+                                "Orden de compra",
+                                "Purchase",
+                                "PO",
+                                "ORDEN DE COMPRA",
+                                "oc",
+                            ]
+                            if any(valor in subject for valor in valores_oc):
                                 # Crear la orden de compra
                                 orden_compra = self.env["oc.compras"].create(
                                     {
@@ -140,16 +152,24 @@ class ServidorCorreos(models.Model):
 
                                             # Crear adjunto en ir.attachment
                                             if archivo:
-                                                archivo_base64 = base64.b64encode(archivo).decode('utf-8')
-                                                archivo_adjunto = self.env['ir.attachment'].create({
-                                                    'name': nombre_archivo,
-                                                    'type': 'binary',
-                                                    'datas': archivo_base64,
-                                                    'res_model': 'oc.compras',
-                                                    'res_id': orden_compra.id,
-                                                    'public': True,
-                                                })
-                                                orden_compra.documentos = [(4, archivo_adjunto.id)]
+                                                archivo_base64 = base64.b64encode(
+                                                    archivo
+                                                ).decode("utf-8")
+                                                archivo_adjunto = self.env[
+                                                    "ir.attachment"
+                                                ].create(
+                                                    {
+                                                        "name": nombre_archivo,
+                                                        "type": "binary",
+                                                        "datas": archivo_base64,
+                                                        "res_model": "oc.compras",
+                                                        "res_id": orden_compra.id,
+                                                        "public": True,
+                                                    }
+                                                )
+                                                orden_compra.documentos = [
+                                                    (4, archivo_adjunto.id)
+                                                ]
 
                                 # Asignar el cuerpo HTML a la orden de compra
                                 orden_compra.body = html_body
