@@ -1,3 +1,4 @@
+from odoo import models, api, fields, _
 import imaplib
 import email
 from email.header import decode_header
