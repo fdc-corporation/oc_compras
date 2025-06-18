@@ -32,6 +32,7 @@
         'view/guias/action_guias_vieew.xml',
         # TEMPLATE DE EMAIL
         'view/email/template_email_oc.xml',
+        'view/sale/sale_view-form.xml',,
 
     ],
     'assets': {
