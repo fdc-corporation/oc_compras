@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data noupdate="1">
+    <data>
         <!-- Definir la tarea programada -->
         <record id="ir_cron_mi_funcion_periodica" model="ir.cron">
             <field name="name">Ejecución correo OC</field>
