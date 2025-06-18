@@ -32,7 +32,7 @@
         'view/guias/action_guias_vieew.xml',
         # TEMPLATE DE EMAIL
         'view/email/template_email_oc.xml',
-
+        'view/sale/form_sale_order.xml',
     ],
     'assets': {
         'web.assets_frontend': [
