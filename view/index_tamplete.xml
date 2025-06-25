@@ -92,6 +92,7 @@
                                 <field name="factura_sunat"  invisible="not is_sunat"  />
                                 <field name="prioridad" widget="priority"  />
                                 <field name="ruta_estado" />
+                                <field name="active" invisible="1"/>
 
                             </group>
                         </group>
