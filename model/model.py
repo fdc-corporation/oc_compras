@@ -60,7 +60,7 @@ class OrdenCompras(models.Model):
     state = fields.Many2one(
         "estado.orden",
         string="Estado",
-        required=True,
+        required=True, group_expand='_group_expand_stages',
         default=lambda self: self.env["estado.orden"].search([], limit=1),
     )
     oc = fields.Char(string="N° de OC")
@@ -92,6 +92,12 @@ class OrdenCompras(models.Model):
     is_finalizado = fields.Boolean(string="La OC esta finalizado", help='La OC ya esta finalizado')
     cotizacion_preview_html = fields.Html(string="Vista Previa", compute="_compute_cotizacion_preview_html")
     active = fields.Boolean(default=True)
+
+
+    @api.model
+    def _group_expand_stages(self, stages, domain, order):
+        return self.env['estado.orden'].search([], order=order)
+
 
     
     def _total_facturas(self):
