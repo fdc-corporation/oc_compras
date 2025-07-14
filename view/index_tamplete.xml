@@ -159,6 +159,7 @@
             <field name="arch" type="xml">
                 <kanban class="o_kanban_dashboard" default_group_by="state" kanban_default_order="state desc" sample="1">
                     <field name="oc"/>
+                    <field name="name"/>
                     <field name="state"/>
                     <field name="cliente"/>
                     <field name="cotizacion_id"/>                     
@@ -176,6 +177,7 @@
                             <div t-attf-class="oe_kanban_global_click oe_semantic_html_override">
                                 <div class="oe_kanban_content" tooltip="kanban-tooltip">
                                     <div class="o_kanban_record_top">
+                                        <strong>Secuencia:</strong><span><field name="name"></field></span>
                                         <b class="o_kanban_record_title">
                                             <field name="cliente"/>
                                         </b>
