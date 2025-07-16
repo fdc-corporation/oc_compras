@@ -133,9 +133,12 @@ class ServidorCorreos(models.Model):
                             ]
                             if any(palabra in valores_oc for palabra in palabras):
                                 # Crear la orden de compra
+                                email = re.search(r'<(.*?)>', from_).group(1)
+                                user = self.env["res.users"].sudo().search([("login", "=", email),("share", "=", False)])
                                 orden_compra = self.env["oc.compras"].create(
                                     {
                                         "de": from_,
+                                        "creado_por": user.id if user else 1,
                                         "asunto": subject,
                                         "body": "",  # Se completará después
                                     }
