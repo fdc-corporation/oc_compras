@@ -1,4 +1,4 @@
-from odoo import models, api, fields, _
+from odoo import models, fields, api, _
 import imaplib
 import email
 from email.header import decode_header
@@ -7,6 +7,7 @@ import os
 import base64
 from . import template_email
 from odoo.exceptions import UserError
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -108,32 +109,27 @@ class ServidorCorreos(models.Model):
                             from_ = msg.get("From")
                             if isinstance(from_, bytes):
                                 from_ = from_.decode("utf-8", errors="replace")
-                            palabras = subject.split()
                             valores_oc = [
                                 "OC",
-                                "OC:",
-                                "oc: ",
-                                "oc:",
-                                "OC: ",
                                 "Order",
-                                "OC ",
                                 "Orden",
+                                "Orden ",
                                 "orden",
+                                "orden ",
                                 "orden de compra",
                                 "Orden de Compra",
                                 "Orden de compra",
                                 "Purchase",
                                 "PO",
-                                "PEDIDO",
-                                "ORDEN",
+                                "ORDEN DE COMPRA",
                                 "oc",
-                                "PEDIDO",
-                                "ORDEN DE COMPRA:",
-                                "PEDIDO:",
+                                "oc: ",
+                                "oc:",
                             ]
-                            if any(palabra in valores_oc for palabra in palabras):
+                            if any(valor in subject for valor in valores_oc):
                                 # Crear la orden de compra
-                                email = re.search(r'<(.*?)>', from_).group(1)
+                                match = re.search(r'<(.*?)>', from_)
+                                email = match.group(1) if match else from_
                                 user = self.env["res.users"].sudo().search([("login", "=", email),("share", "=", False)])
                                 orden_compra = self.env["oc.compras"].create(
                                     {
