@@ -7,6 +7,7 @@ import os
 import base64
 from . import template_email
 from odoo.exceptions import UserError
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -127,7 +128,8 @@ class ServidorCorreos(models.Model):
                             ]
                             if any(valor in subject for valor in valores_oc):
                                 # Crear la orden de compra
-                                email = re.search(r'<(.*?)>', from_).group(1)
+                                match = re.search(r'<(.*?)>', from_)
+                                email = match.group(1) if match else from_
                                 user = self.env["res.users"].sudo().search([("login", "=", email),("share", "=", False)])
                                 orden_compra = self.env["oc.compras"].create(
                                     {
