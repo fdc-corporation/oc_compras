@@ -126,11 +126,11 @@ class ServidorCorreos(models.Model):
                                 "oc: ",
                                 "oc:",
                             ]
+                            match = re.search(r'<(.*?)>', from_)
+                            email_user = match.group(1) if match else from_
+
                             if any(valor in subject for valor in valores_oc):
-                                # Crear la orden de compra
-                                match = re.search(r'<(.*?)>', from_)
-                                email = match.group(1) if match else from_
-                                user = self.env["res.users"].sudo().search([("login", "=", email),("share", "=", False)])
+                                user = self.env["res.users"].sudo().search([("login", "=", email_user),("share", "=", False)])
                                 orden_compra = self.env["oc.compras"].create(
                                     {
                                         "de": from_,
