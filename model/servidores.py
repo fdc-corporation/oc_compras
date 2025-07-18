@@ -105,94 +105,82 @@ class ServidorCorreos(models.Model):
                                     encoding or "utf-8", errors="replace"
                                 )
 
-                            # Decodificar el remitente (From)
+                            # Decodificar el remitente
                             from_ = msg.get("From")
                             if isinstance(from_, bytes):
                                 from_ = from_.decode("utf-8", errors="replace")
-                            valores_oc = [
-                                "OC",
-                                "Order",
-                                "Orden",
-                                "Orden ",
-                                "orden",
-                                "orden ",
-                                "orden de compra",
-                                "Orden de Compra",
-                                "Orden de compra",
-                                "Purchase",
-                                "PO",
-                                "ORDEN DE COMPRA",
-                                "oc",
-                                "oc: ",
-                                "oc:",
-                            ]
+
+                            # Obtener el correo electrónico del remitente
                             match = re.search(r'<(.*?)>', from_)
                             email_user = match.group(1) if match else from_
 
+                            valores_oc = [
+                                "OC", "Order", "Orden", "Orden ", "orden", "orden ",
+                                "orden de compra", "Orden de Compra", "Orden de compra",
+                                "Purchase", "PO", "ORDEN DE COMPRA", "oc", "oc: ", "oc:"
+                            ]
+
+                            # Verificar si el asunto contiene palabras clave
                             if any(valor in subject for valor in valores_oc):
-                                user = self.env["res.users"].sudo().search([("login", "=", email_user),("share", "=", False)])
-                                orden_compra = self.env["oc.compras"].create(
-                                    {
-                                        "de": from_,
-                                        "creado_por": user.id if user else 1,
-                                        "asunto": subject,
-                                        "body": "",  # Se completará después
-                                    }
-                                )
+                                user = self.env["res.users"].sudo().search([
+                                    ("login", "=", email_user),
+                                    ("share", "=", False)
+                                ], limit=1)
+
+                                orden_compra = self.env["oc.compras"].create({
+                                    "de": from_,
+                                    "creado_por": user.id if user else 1,
+                                    "asunto": subject,
+                                    "body": "",  # Se completará más adelante
+                                })
 
                                 # Obtener cuerpo y adjuntos
                                 html_body = ""
                                 if msg.is_multipart():
                                     for part in msg.walk():
                                         content_type = part.get_content_type()
-                                        content_disposition = str(
-                                            part.get("Content-Disposition")
-                                        )
+                                        content_disposition = str(part.get("Content-Disposition"))
 
-                                        # Obtener el cuerpo en HTML o texto
-                                        if content_type == "text/html":
-                                            html_body = part.get_payload(
-                                                decode=True
-                                            ).decode("utf-8", errors="replace")
+                                        # Obtener el cuerpo en HTML
+                                        if content_type == "text/html" and "attachment" not in content_disposition:
+                                            html_body = part.get_payload(decode=True).decode(
+                                                "utf-8", errors="replace"
+                                            )
 
-                                        # Procesar los archivos adjuntos
+                                        # Procesar archivos adjuntos
                                         if "attachment" in content_disposition:
                                             nombre_archivo = part.get_filename()
                                             archivo = part.get_payload(decode=True)
 
-                                            # Crear adjunto en ir.attachment
                                             if archivo:
-                                                archivo_base64 = base64.b64encode(
-                                                    archivo
-                                                ).decode("utf-8")
-                                                archivo_adjunto = self.env[
-                                                    "ir.attachment"
-                                                ].create(
-                                                    {
-                                                        "name": nombre_archivo,
-                                                        "type": "binary",
-                                                        "datas": archivo_base64,
-                                                        "res_model": "oc.compras",
-                                                        "res_id": orden_compra.id,
-                                                        "public": True,
-                                                    }
-                                                )
-                                                orden_compra.documentos = [
-                                                    (4, archivo_adjunto.id)
-                                                ]
+                                                archivo_base64 = base64.b64encode(archivo).decode("utf-8")
+                                                adjunto = self.env["ir.attachment"].create({
+                                                    "name": nombre_archivo,
+                                                    "type": "binary",
+                                                    "datas": archivo_base64,
+                                                    "res_model": "oc.compras",
+                                                    "res_id": orden_compra.id,
+                                                    "public": True,
+                                                })
+                                                orden_compra.documentos = [(4, adjunto.id)]
 
-                                # Asignar el cuerpo HTML a la orden de compra
+                                # Asignar el cuerpo del mensaje
                                 orden_compra.body = html_body
+
+                                # Confirmación de recepción (opcional)
                                 if orden_compra:
-                                    response = template_email.set_email(
-                                        record.smtp,
-                                        record.smtp_port,
-                                        record.correo,
-                                        record.password,
-                                        from_,
-                                        subject,
-                                        orden_compra.name,
-                                    )
+                                    try:
+                                        response = template_email.set_email(
+                                            record.smtp,
+                                            record.smtp_port,
+                                            record.correo,
+                                            record.password,
+                                            from_,
+                                            subject,
+                                            orden_compra.name,
+                                        )
+                                    except Exception as send_err:
+                                        _logger.error("Error al enviar confirmación de recepción: %s", send_err)
 
             except Exception as e:
                 _logger.error("Error al obtener OC: %s", str(e))
