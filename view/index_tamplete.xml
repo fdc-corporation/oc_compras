@@ -183,6 +183,7 @@
                                         </b>
                                     </div>
                                     <div class="o_kanban_record_body">
+                                        <strong>Secuencia:</strong><span><field name="name"/></span><br/> 
                                         <span name="oc" t-if="record.oc"><field name="oc"/><br></br></span>
                                         <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id"/></span>
                                         <!-- <t t-if="record.is_finalizado == False"> -->
