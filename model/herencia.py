@@ -78,7 +78,7 @@ class FacturaOC(models.Model):
                 if estado:
                     record.oc_id.state = estado.id
                 if sale.ots:
-                    state_fac = self.env["maintenance.stage"].srarch([("is_finalizado", "=", True)], limit=1)
+                    state_fac = self.env["maintenance.stage"].search([("is_finalizado", "=", True)], limit=1)
                     orden_trabajo = self.env["maintenance.request"].search([
                         ("tarea", "=", sale.ots.id)
                     ], limit=1)
