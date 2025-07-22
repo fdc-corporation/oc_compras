@@ -22,5 +22,10 @@
             </xpath>
         </field>
     </record>
+<<<<<<< HEAD:view/sale/sale_view-form.xml
 
 </odoo>
+=======
+ 
+</odoo>
+>>>>>>> 26cfa7d (Se realiza cambios en modelos y herencias para mejor automatizacion):view/sale/form_sale_order.xml

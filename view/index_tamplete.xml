@@ -32,6 +32,9 @@
             <field name="model">oc.compras</field>
             <field name="arch" type="xml">
                 <form string="Orden de Compras">
+                    <field name="oc_existente" invisible="True" />    
+                    <field name="active" invisible="1" />
+
                     <header>
 
                         <button name="action_set_email" type="object" string="Enviar correo"  />
@@ -46,10 +49,21 @@
                                     icon="fa-pencil-square-o">
                                     <field string="Facturas" name="facturas_cantidad" widget="statinfo"/>
                                 </button>
+                                <!-- boton de compras -->
+                                <button class="oe_stat_button" type="object" name="action_view_compras"
+                                        icon="fa-credit-card">
+                                        <field string="Compras" name="compras_cantidad" widget="statinfo"/>
+                                </button>
+
                                 <!-- BOTON DE COTIZACIONES -->
                                 <button class="oe_stat_button" type="object"  name="action_view_cotizaciones"
                                         icon="fa-pencil-square-o">
                                         <field string="Cotizacion" name="cotizacion_cantidad" widget="statinfo"/>
+                                </button>
+                                <!-- BOTON DE TAREAS MANT -->
+                                 <button class="oe_stat_button" type="object" name="action_view_tareas"
+                                        icon="fa-chain">
+                                        <field string="Tareas" name="tareas_cantidad" widget="statinfo"/>
                                 </button>
                                 <!-- BOTON PARA SERVICIOS -->
                                 <button class="oe_stat_button" type="object" name="action_view_servicios"
@@ -72,46 +86,56 @@
                             </h1>
                         </div>
                         <group string="Datos del registro">
+
                             <group>
-                                <field name="fecha_creacion"/>
                                 <field name="creado_por"/>
                                 <field name="compania"/>  <!-- Updated field name -->
-                                <field name="cliente" />
-                                <field name="oc" />
-                                <field name="oc_existente" invisible="True" />    
-                                <field name="ot_servicio" />                   
-                                <field name="guia_generada" />         
                             </group>
                             <group>
-                                <field name="is_finalizado"/>
+                                <field name="fecha_creacion"/>
                                 <field name="fecha_solicitud"/>
-                                <field name="cotizacion_id" widget="many2one" options="{'no_quick_create': true, 'no_create_edit': true}" domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
+                            </group>
+                        </group>
+                        <group string="Informacion del cliente">
+                            <group>
+                                <field name="cliente" />
+                                <field name="celular" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="correo" readonly="1"/>
+                                <field name="oc" />
+                            </group>
+                        </group>
+                        <group string="Datos Interno">
+                            <group>
+                                <field name="cotizacion_id" widget="many2many_tags" options="{'no_quick_create': true, 'no_create_edit': true}" domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
+                                <field name="is_finalizado"/>
+                                <field name="ruta_estado" invisible="1" />
+                                <field name="tarea_mant" widget="many2many_tags" />                   
+                                <field name="ot_servicio" widget="many2many_tags" />                   
+                                <field name="compras_id" widget="many2many_tags" />         
+
+                            </group>
+                            <group>
                                 <field name="factura" widget="many2many_tags" invisible="is_sunat"  options="{'no_quick_create': true, 'no_create_edit': true}"  domain="[('oc_id', '=', False), ('partner_id', '=', cliente )]"/>
-                                
                                 <field name="is_sunat"   />
                                 <field name="factura_sunat"  invisible="not is_sunat"  />
+                                <field name="guia_generada" widget="many2many_tags" />
                                 <field name="prioridad" widget="priority"  />
+<<<<<<< HEAD
                                 <field name="ruta_estado" invisible="1"/>
                                 <field name="active" invisible="1"/>
 
+=======
+>>>>>>> 26cfa7d (Se realiza cambios en modelos y herencias para mejor automatizacion)
                             </group>
                         </group>
                         <notebook>
-                            <!-- <page>
-                                <group>
-                                    <group>
-                                        <field name="cotizacion_preview_html" invisible="not cotizacion_id" />
-                                    </group>
-                                </group>    
-                            </page> -->
                             <page name="correo" string="Datos de correo">
                                 <group >
                                     <group>
                                         <field name="de"/>
                                     </group>
-                                    <!-- <group>
-                                        <field name="destino"/>
-                                    </group> -->
                                 </group>
                                 <group >
                                     <field name="asunto"/>
@@ -121,35 +145,34 @@
                                 </group>
                             </page>
                             <page string="Adjuntos">
-                                <group>
-                                    <field name="documentos">
-                                        <tree>
-                                            <field name="name" string="Nombre del archivo"/>
-                                            <field name="type" string="Tipo de archivo"/>
-                                            <field name="mimetype" string="Tipo de archivo"/>
-                                            <button name="download_file" type="object" string="Descargar archivo" />
+                                <field name="documentos">
+                                    <tree>
+                                        <field name="name" string="Nombre del archivo"/>
+                                        <field name="type" string="Tipo de archivo"/>
+                                        <field name="mimetype" string="Tipo de archivo"/>
+                                        <button name="download_file" type="object" string="Descargar archivo" />
 
-                                        </tree>
-                                    </field>
-                                    <group>
-                                        <field name="guia_id" filename="guia_filename"/>
-                                        <field invisible="true" name="guia_filename"/>
-                                    </group>
-                                    <group>
-                                        <button invisible="true" name="descargar_guia" type="object" string="Descargar Guía"/>
-                                    </group>
-                                       
-                                </group>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Guias firmadas">
+                                <field name="guia_firmada_ids">
+                                    <tree editable="bottom">
+                                        <field name="archivo" filename="filename" widget="binary"/>
+                                        <field name="filename"/>
+                                        <field name="fecha_subida"/>
+                                    </tree>
+                                </field>
                             </page>
                             
                         </notebook>
                         <div class="oe_chatter">
-                                            <field name="message_follower_ids" widget="mail_followers" />
-                                            <field name="activity_ids" widget="mail_activity" />
-                                            <field name="message_ids" widget="mail_thread" />
-                                        </div>
-                                            </sheet>
-                                        </form>
+                            <field name="message_follower_ids" widget="mail_followers" />
+                            <field name="activity_ids" widget="mail_activity" />
+                            <field name="message_ids" widget="mail_thread" />
+                        </div>
+                    </sheet>
+                </form>
             </field>
         </record>
 
@@ -183,7 +206,7 @@
                                         </b>
                                     </div>
                                     <div class="o_kanban_record_body">
-                                        <strong>Secuencia:</strong><span><field name="name"/></span><br/> 
+                                        <span>Secuencia:</span><span><field name="name"/></span><br/> 
                                         <span name="oc" t-if="record.oc"><field name="oc"/><br></br></span>
                                         <span name="cotizacion_id" t-if="record.cotizacion_id"><field name="cotizacion_id"/></span>
                                         <!-- <t t-if="record.is_finalizado == False"> -->

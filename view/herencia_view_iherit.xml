@@ -9,9 +9,6 @@
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
                 <field name="oc_id" readonly="True" />
             </xpath>
-            <xpath expr="//field[@name='state']" position="replace">
-                <field name="state" widget="statusbar"/>
-            </xpath>
         </field>
     </record>
     <record id="account_inherit_form_view" model="ir.ui.view">
@@ -41,6 +38,77 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='user_id']" position="after">
                 <field name="oc_id" readonly="True" />
+            </xpath>
+        </field>
+    </record>
+
+
+
+
+    <!-- MANTENIMIENTO -->
+
+	<record id="view_maintenance_request_filter" model="ir.ui.view">
+		<field name="name">maintenance.request.search</field>
+		<field name="model">maintenance.request</field>
+		<field name="inherit_id" ref="maintenance.hr_equipment_request_view_search"/>
+		<field name="arch" type="xml">
+			<search>
+			<field name="order_compra" />
+				<filter name="filter_my_orders" groups="pmant.group_pmant_tecnico" string="Mis Órdenes" domain="[('user_id', '=', uid)]"/>
+                <filter string="N° de OC" name="filter_oc" domain="[('order_compra','=', order_compra)]"/>
+			</search>		
+		</field>
+	</record>
+
+    <record id="pmant_kanban_oc_inherit_module_name" model="ir.ui.view">
+        <field name="name">oc.compras.view.form.inherit</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="oc_cliente" />
+            </xpath>
+            <xpath expr="//span[@name='schedule_date']" position="before">
+                <span t-if="record.oc_cliente">OC: <field name="oc_cliente" /></span><br></br>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="ots_add_oc_compras" model="ir.ui.view">
+		<field name="name">ots.view</field>
+		<field name="model">maintenance.request</field>
+		<field name="inherit_id" ref="maintenance.hr_equipment_request_view_form" />
+		<field name="arch" type="xml">
+            <xpath expr="//field[@name='is_tecnico']" position="after">
+                <field name="oc_cliente" string="OC cliente" invisible="not order_compra" />
+                <field name="order_compra" invisible="is_tecnico"  options="{'no_quick_create': true, 'no_create_edit': true}"  domain="['|', ('cliente', '=', empresa), ('cliente', '=', ubicacion)]" />
+				<field name="not_oc" />
+            </xpath>
+        </field>
+    </record>
+
+
+
+
+    <record id="inerit_tarea_mantenimiento_oc" model="ir.ui.view">
+        <field name="name">tarea.mantenimiento.view.kanban.inherit</field>
+        <field name="model">tarea.mantenimiento</field>
+        <field name="inherit_id" ref="pmant.Tareav_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="oc_id"></field>
+            </xpath>
+        </field>
+    </record>
+
+
+    <record id="inerit_tarea_mantenimiento_form" model="ir.ui.view">
+        <field name="name">tarea.mantenimiento.view.form.inherit</field>
+        <field name="model">tarea.mantenimiento</field>
+        <field name="inherit_id" ref="pmant.Tareav_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='cliente']" position="after">
+                <field name="oc_id" groups="pmant.group_pmant_admin"/>
             </xpath>
         </field>
     </record>
