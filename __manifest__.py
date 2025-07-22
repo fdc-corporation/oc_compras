@@ -15,6 +15,10 @@
         'purchase',
         'web',
         'website',
+        'solse_pe_cpe_guias',
+        'pmant',
+        'maintenance',
+        'custom_fpc_compras'
     ],
     'data': [
         'security/security.xml',
