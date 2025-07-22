@@ -248,25 +248,25 @@ class OrdenCompras(models.Model):
             "context": "{'create' : False}",
         }
 
-    def descargar_guia(self):
-        """Redirige a la URL de descarga"""
-        self.ensure_one()
-        if not self.guia_id:
-            return {
-                "type": "ir.actions.client",
-                "tag": "display_notification",
-                "params": {
-                    "title": "Error",
-                    "message": "No hay un archivo disponible para descargar.",
-                    "type": "danger",
-                    "sticky": False,
-                },
-            }
-        return {
-            "type": "ir.actions.act_url",
-            "url": f"/web/content/{self.id}/guia_id?download=true",
-            "target": "self",
-        }
+    # def descargar_guia(self):
+    #     """Redirige a la URL de descarga"""
+    #     self.ensure_one()
+    #     if not self.guia_id:
+    #         return {
+    #             "type": "ir.actions.client",
+    #             "tag": "display_notification",
+    #             "params": {
+    #                 "title": "Error",
+    #                 "message": "No hay un archivo disponible para descargar.",
+    #                 "type": "danger",
+    #                 "sticky": False,
+    #             },
+    #         }
+    #     return {
+    #         "type": "ir.actions.act_url",
+    #         "url": f"/web/content/{self.id}/guia_id?download=true",
+    #         "target": "self",
+    #     }
     
 
     def action_set_email (self):
@@ -343,8 +343,8 @@ class OrdenCompras(models.Model):
             self.write_ruta_estado()
             if self.state.secuencia == 8:
                 self.notificacion_facturar()
-        if "guia_id" in vals:
-            self.registrar_guia()
+        # if "guia_id" in vals:
+        #     self.registrar_guia()
         if "factura_sunat" in vals:
             self._update_estado_factura()
         if "cotizacion_id" in vals:
@@ -416,11 +416,11 @@ class OrdenCompras(models.Model):
                 if estado_atencion:
                     record.state = estado_atencion.id
 
-    def registrar_guia(self):
-        if self.guia_id:
-            self.state = self.env.ref(
-                "oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False
-            ).id
+    # def registrar_guia(self):
+    #     if self.guia_id:
+    #         self.state = self.env.ref(
+    #             "oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False
+    #         ).id
 
     @api.model
     def _read_group_stage_ids(self, states, domain, order):
