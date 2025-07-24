@@ -78,7 +78,7 @@ class FacturaOC(models.Model):
                 if estado:
                     record.oc_id.state = estado.id
                 if sale.ots:
-                    state_fac = self.env["maintenance.stage"].srarch([("is_finalizado", "=", True)], limit=1)
+                    state_fac = self.env["maintenance.stage"].search([("is_finalizado", "=", True)], limit=1)
                     orden_trabajo = self.env["maintenance.request"].search([
                         ("tarea", "=", sale.ots.id)
                     ], limit=1)
@@ -170,15 +170,6 @@ class OTS(models.Model):
     @api.onchange("tarea", "order_compra")
     def _compute_order_compra(self):
         for record in self:
-<<<<<<< HEAD
-            if record.oc_id:
-                estado = self.env.ref('oc_compras.estado_guia_generado', raise_if_not_found=False)
-                record.oc_id.state = estado.id
-        
-        return result
-
-
-=======
             if record.tarea and record.tarea.oc_id:
                 record.order_compra = record.tarea.oc_id.id
                 if record.tarea.oc_id:
@@ -232,4 +223,3 @@ class EtapasMantenimiento (models.Model):
 
 
     is_finalizado = fields.Boolean(string="Es la etapa de Finalizado?")
->>>>>>> 26cfa7d (Se realiza cambios en modelos y herencias para mejor automatizacion)
