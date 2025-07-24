@@ -9,26 +9,25 @@ class InventarioOC(models.Model):
 
     oc_id = fields.Many2one("oc.compras", string="OC")
 
-    # def action_generate_eguide(self):
-    #     result = super(InventarioOC, self).action_generate_eguide()
+    def action_generate_eguide(self):
+        result = super(InventarioOC, self).action_generate_eguide()
 
-    #     for record in self:
-    #         if record.oc_id:
-    #             estado = self.env.ref(
-    #                 "oc_compras.estado_guia_generado", raise_if_not_found=False
-    #             )
-    #             record.oc_id.state = estado.id
-    #         else:
-    #             sale = self.env["sale.order"].search(
-    #                 [("name", "=", record.group_id.name), ("state", "=", "sale")]
-    #             )
-    #             if sale and sale.oc_id:
-    #                 sale.oc_id.guia_generada = record.id
-    #                 estado = self.env.ref(
-    #                     "oc_compras.estado_guia_generado", raise_if_not_found=False
-    #                 )
-    #                 record.oc_id.state = estado.id
-    #     return result
+        for record in self:
+            if record.oc_id:
+                estado = self.env.ref(
+                    "oc_compras.estado_guia_generado", raise_if_not_found=False
+                )
+                record.oc_id.state = estado.id
+            else:
+                sale = self.env["sale.order"].search(
+                    [("name", "=", record.group_id.name), ("state", "=", "sale")]
+                )
+                if sale and sale.oc_id:
+                    estado = self.env.ref(
+                        "oc_compras.estado_guia_generado", raise_if_not_found=False
+                    )
+                    record.oc_id.state = estado.id
+        return result
 
     def action_send_delivery_guide(self):
         result = super(InventarioOC, self).action_send_delivery_guide()
