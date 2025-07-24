@@ -457,6 +457,7 @@ class OrdenCompras(models.Model):
     def action_update_data(self):
         for record in self:
             for coti in record.cotizacion_id:
+                coti.cliente_order_ref = record.oc
                 grupo = self.env["procurement.group"].search([("name", "=", coti.name)], limit=1)
                 if grupo:
                     compras = self.env["purchase.order"].search([("origin", "=", coti.name)])
