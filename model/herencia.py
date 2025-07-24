@@ -23,7 +23,6 @@ class InventarioOC(models.Model):
                     [("name", "=", record.group_id.name), ("state", "=", "sale")]
                 )
                 if sale and sale.oc_id:
-                    sale.oc_id.guia_generada = record.id
                     estado = self.env.ref(
                         "oc_compras.estado_guia_generado", raise_if_not_found=False
                     )
