@@ -63,26 +63,36 @@ class FacturaOC(models.Model):
     oc_id = fields.Many2one("oc.compras", string="OC")
 
 
-    def action_post (self):
+
+    def action_post(self):
         result = super(FacturaOC, self).action_post()
 
         for record in self:
-            name_orden = record.invoice_origin
-            sale = self.env['sale.order'].search([('name', '=', name_orden)])
+            name_orden = record.invoice_origin or ""
+            ordenes = [n.strip() for n in name_orden.split(",")] if "," in name_orden else [name_orden.strip()]
+            sales = self.env['sale.order'].search([('name', 'in', ordenes)])
 
-            if sale:
+            for sale in sales:
                 sale.state_factura = "facturado"
-                record.oc_id = sale.oc_id.id
-                estado = self.env.ref('oc_compras.estado_facturado', raise_if_not_found=False)
-                if estado:
-                    record.oc_id.state = estado.id
+                if sale.oc_id:
+                    record.oc_id = sale.oc_id.id
+                    estado = self.env.ref('oc_compras.estado_facturado', raise_if_not_found=False)
+                    if estado:
+                        sale.oc_id.state = estado.id
+
                 if sale.ots:
-                    state_fac = self.env["maintenance.stage"].search([("is_finalizado", "=", True)], limit=1)
-                    orden_trabajo = self.env["maintenance.request"].search([
+                    orden_trabajo = self.env['maintenance.request'].search([
                         ("tarea", "=", sale.ots.id)
                     ], limit=1)
-                    orden_trabajo.stage_id = state_fac.id
+                    if orden_trabajo:
+                        state_fac = self.env['maintenance.stage'].search([
+                            ("is_finalizado", "=", True)
+                        ], limit=1)
+                        if state_fac:
+                            orden_trabajo.stage_id = state_fac.id
+
         return result
+
 
 
 
