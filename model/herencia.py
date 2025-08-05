@@ -63,7 +63,6 @@ class FacturaOC(models.Model):
     oc_id = fields.Many2one("oc.compras", string="OC")
 
 
-
     def action_post(self):
         result = super(FacturaOC, self).action_post()
 
