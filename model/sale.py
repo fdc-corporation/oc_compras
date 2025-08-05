@@ -39,5 +39,21 @@ class SaleOrder (models.Model):
 
 
 
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.onchange('product_id')
+    def _onchange_product_id_custom(self):
+        # Llamar al método original
+        res = super()._onchange_product_id()
+        
+        if self.product_id:
+            if self.product_id.description_sale:
+                # Reemplazar el campo name por la descripción de venta
+                self.name = self.product_id.description_sale
+            else:
+                return res
+
+
 # class SaleOrderLine(models.Model):
 #     _inherit 
