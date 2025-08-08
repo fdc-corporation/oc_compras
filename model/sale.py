@@ -11,7 +11,7 @@ class SaleOrder (models.Model):
     # state = fields.Selection( selection_add=[("facturado", "Facturado")])
     state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura")
 
-
+    
 
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()

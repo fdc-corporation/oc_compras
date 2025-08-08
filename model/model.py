@@ -292,11 +292,9 @@ class OrdenCompras(models.Model):
 
 
     def action_post_cotizacion(self):
-        self.ensure_one()
-        if not self.cotizacion_id:
-            return
-        if self.cotizacion_id.state != 'draft' and self.cotizacion_id.state != 'sent':
-            return {
+        for sale in self.cotizacion_id:
+            if sale.state not in ['draft', 'sent']:
+                return {
                 "type": "ir.actions.client",
                 "tag": "display_notification",
                 "params": {
@@ -306,7 +304,7 @@ class OrdenCompras(models.Model):
                     "sticky": False,
                 },
             }
-        self.cotizacion_id.action_confirm()
+            sale.action_confirm()
 
     def action_create_invoice(self):
         self.ensure_one()

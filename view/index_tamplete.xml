@@ -38,6 +38,7 @@
                     <header>
 
                         <button name="action_set_email" type="object" string="Enviar correo"  />
+                        <button name="action_post_cotizacion" type="object" string="Confirmar Cotizacion"  />
 
                         <field name="active" invisible="1" />
                         <field name="state" widget="statusbar" options="{'clickable': True}" />                        
