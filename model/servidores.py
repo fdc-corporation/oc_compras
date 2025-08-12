@@ -117,7 +117,7 @@ class ServidorCorreos(models.Model):
                             valores_oc = [
                                 "OC", "Order", "Orden", "Orden ", "orden", "orden ",
                                 "orden de compra", "Orden de Compra", "Orden de compra",
-                                "Purchase", "PO", "ORDEN DE COMPRA", "oc", "oc: ", "oc:"
+                                "Purchase", "PO", "ORDEN DE COMPRA", "oc", "oc: ", "oc:", "OC-", "oc-"
                             ]
 
                             # Verificar si el asunto contiene palabras clave

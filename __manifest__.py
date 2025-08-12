@@ -4,7 +4,7 @@
     'description': 'Gestor de órdenes de compras para facilitar la administración y control de procesos.',
     'summary': 'Módulo para gestión avanzada de órdenes de compra.',
     'author': 'Yostin Palacios',
-    'website': 'https://example.com',  # Cambia a tu sitio web si aplica
+    'website': 'https://equiposindustriales.pe/',  # Cambia a tu sitio web si aplica
     'license': 'LGPL-3',
     'category': 'Sales',
     'depends': [
