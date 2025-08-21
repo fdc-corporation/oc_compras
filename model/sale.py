@@ -12,10 +12,20 @@ class SaleOrder (models.Model):
     state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura")
 
 
+    def create(self, vals):
+        res = super(SaleOrder, self).create(vals)
+        if vals.get("state_factura"):
+            res.state_factura = ''
+
+        return res
+
+
 
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()
         for record in self:
+            if record.state_factura:
+                record.state_factura = ''
             if record.oc_id:
                 grupo = self.env["procurement.group"].search([("name", "=", record.name)])
                 if grupo:
