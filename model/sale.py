@@ -15,7 +15,7 @@ class SaleOrder (models.Model):
 
     def create(self, vals):
         res = super(SaleOrder, self).create(vals)
-        if vals["state_factura"]:
+        if "state_factura" in vals:
             res.state_factura = ''
 
         return res
