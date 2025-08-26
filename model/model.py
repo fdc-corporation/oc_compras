@@ -108,7 +108,7 @@ class OrdenCompras(models.Model):
     )
     active = fields.Boolean(default=True)
     compras_id = fields.One2many("purchase.order", "oc_id", string="OC proveedor")
-
+    observaciones = fields.Text(string="Observaciones")
     @api.model
     def _group_expand_stages(self, stages, domain, order):
         return self.env["estado.orden"].search([], order=order)
