@@ -15,7 +15,7 @@
 					</a>
 				</div>
 				<div class="titulo-oc">
-					<span>
+				<span>
 						Orden de Compra
 					</span>
 					<span>
@@ -134,6 +134,8 @@
 								</ul>
 								<t t-set="ruta_estado" t-value="str(oc.ruta_estado)">
 								</t>
+								<t t-set="nuevo" t-value="'Nueva Solicitud'">
+								</t>
 								<t t-set="atencion" t-value="'En Atencion'">
 								</t>
 								<t t-set="entrega" t-value="'Entrega en Atencion'">
@@ -146,14 +148,19 @@
 								</t>
 								<div class="tab-content" id="pills-tabContent">
 									<div class="contenedor-img-procesos tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
-										<t t-if="'False' in ruta_estado and atencion not in ruta_estado">
+										<t t-if="nuevo in ruta_estado and atencion not in ruta_estado">
 											<img src="/oc_compras/static/description/1.jpg" style="width:1244px;" />
 										</t>
 										<t t-else="">
-											<t t-if=" atencion in ruta_estado and entrega not in ruta_estado and guia not in ruta_estado and factura not in ruta_estado">
+											<t t-if="atencion in ruta_estado and entrega not in ruta_estado and guia not in ruta_estado and factura not in ruta_estado">
 												<img src="/oc_compras/static/description/1-2.png" style="width:1244px;" />
 											</t>
 											<t t-else="">
+												<t t-if="servicio in ruta_estado and entrega not in ruta_estado">
+													<!-- ESTADO DE SOLO SERVICIO -->
+
+													<!-- ESTADO DE SERVICIO FACTURADO -->
+												</t>
 												<!-- RUTA DE SOLO ENTREGA DE PRODUCTOS -->
 												<t t-if="entrega in ruta_estado and servicio not in ruta_estado">
 													<!-- ENTREGA EN ATENCIOMN SIN SERVIVICIO -->
