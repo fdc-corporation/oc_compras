@@ -187,6 +187,7 @@ class OrdenCompras(models.Model):
             }
 
 
+
     def action_post_cotizacion(self):
         self.ensure_one()
         if not self.cotizacion_id:
@@ -202,8 +203,20 @@ class OrdenCompras(models.Model):
                     "sticky": False,
                 },
             }
-        self.cotizacion_id.action_confirm()
-
+        for sale in self.cotizacion_id:
+            if sale.state == 'draft' or sale.state == 'sent':
+                for line in sale.order_line:
+                    if sale.is_servicio and not line.id_equipo :
+                        return {
+                            "name": "Confirmacion de venta",
+                            "type": "ir.actions.act_window",
+                            "res_model": "wizard.sale.order",
+                            "view_mode": "form",
+                            "target": "new",
+                            "context": {"default_order_id": sale.id},
+                        }
+                    elif sale.is_servicio and line.id_equipo:
+                        sale.action_confirm()
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id
