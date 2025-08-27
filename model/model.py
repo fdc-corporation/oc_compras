@@ -21,6 +21,7 @@ class EstadoOrden(models.Model):
     )  # Para colapsar columnas
     # fold_flujo = fields.Boolean(string="Colapsar en flujo", default=False)
 
+
 class IrAttachment(models.Model):
     _inherit = "ir.attachment"
 
@@ -49,25 +50,28 @@ class OrdenCompras(models.Model):
     fecha_creacion = fields.Date(
         string="Fecha de creacion", default=lambda self: fields.Date.today()
     )
-    de = fields.Char(string="De")
+    de = fields.Char(string="De", tracking=True)
     asunto = fields.Char(string="Asunto")
     tarea = fields.Char(string="Asunto")
     body = fields.Html(string="Contenido")
     documentos = fields.Many2many("ir.attachment", string="Adjuntos")
     cliente = fields.Many2one("res.partner", string="Cliente")
-    cotizacion_id = fields.Many2one("sale.order", string="Cotización")
-    factura = fields.Many2many("account.move", string="Factura")
+    celular = fields.Char(related="cliente.mobile", string="Celular", store=True)
+    correo = fields.Char(related="cliente.email", string="Correo", store=True)
+    cotizacion_id = fields.One2many("sale.order", "oc_id", string="Cotización")
+    factura = fields.One2many("account.move", "oc_id", string="Factura")
     state = fields.Many2one(
         "estado.orden",
         string="Estado",
+        tracking=True,
         required=True,
+        group_expand="_group_expand_stages",
         default=lambda self: self.env["estado.orden"].search([], limit=1),
     )
     oc = fields.Char(string="N° de OC")
-    guia_id = fields.Binary(string="Guia Firmada")
-    guia_filename = fields.Char(string="Nombre del Archivo")
-    ruta_estado = fields.Text(string="Ruta de Estados")
-    guia_generada = fields.Many2one("stock.picking", string="Guia Generada")
+    guia_firmada_ids = fields.One2many("guia.firmada", "oc_id", string="Guías Firmadas")
+    ruta_estado = fields.Text(string="Ruta de Estados", default="Nueva Solicitud")
+    guia_generada = fields.One2many("stock.picking", "oc_id", string="Guia Generada")
     prioridad = fields.Selection(
         [
             ("muy_baja", "Muy baja"),
@@ -83,14 +87,31 @@ class OrdenCompras(models.Model):
     )
     is_sunat = fields.Boolean(string="Es una factura Sunat?")
     factura_sunat = fields.Char(string="Factura Sunat")
-    ot_servicio = fields.Many2one("maintenance.request", string="OT")
+    tarea_mant = fields.One2many(
+        "tarea.mantenimiento", "oc_id", string="Treas mantenimiento"
+    )
+    ot_servicio = fields.One2many(
+        "maintenance.request", "order_compra", string="OT Mantenimiento"
+    )
     facturas_cantidad = fields.Integer(compute="_total_facturas")
     cotizacion_cantidad = fields.Integer(compute="_total_cotizaciones")
+    tareas_cantidad = fields.Integer(compute="_total_tareas_mant")
+    compras_cantidad = fields.Integer(compute="_total_compras")
     servicios_cantidad = fields.Integer(compute="_total_servicios")
     guias_cantidad = fields.Integer(compute="_total_guias")
     fold = fields.Boolean(related="state.fold")
-    is_finalizado = fields.Boolean(string="La OC esta finalizado", help='La OC ya esta finalizado')
-    cotizacion_preview_html = fields.Html(string="Vista Previa", compute="_compute_cotizacion_preview_html")
+    is_finalizado = fields.Boolean(
+        string="La OC esta finalizado", help="La OC ya esta finalizado"
+    )
+    cotizacion_preview_html = fields.Html(
+        string="Vista Previa", compute="_compute_cotizacion_preview_html"
+    )
+    active = fields.Boolean(default=True)
+    compras_id = fields.One2many("purchase.order", "oc_id", string="OC proveedor")
+    observaciones = fields.Text(string="Observaciones")
+    @api.model
+    def _group_expand_stages(self, stages, domain, order):
+        return self.env["estado.orden"].search([], order=order)
 
     def _total_facturas(self):
         self.facturas_cantidad = len(self.factura)
@@ -104,17 +125,83 @@ class OrdenCompras(models.Model):
     def _total_guias(self):
         self.guias_cantidad = len(self.guia_generada)
 
+    def _total_compras(self):
+        self.compras_cantidad = len(self.compras_id)
+
+    def _total_tareas_mant(self):
+        self.tareas_cantidad = len(self.tarea_mant)
+
     def action_view_factura(self):
+        if len(self.factura) > 1:
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Facturas",
+                "domain": [("id", "in", self.factura.ids)],
+                "view_type": "tree",
+                "view_mode": "tree,form",
+                "res_model": "account.move",
+                "context": "{'create' : False}",
+            }
         return {
+            "type": "ir.actions.act_window",
             "name": "Facturas",
-            "domain": [("id", "in", self.factura.ids)],
-            "view_type": "tree",
-            "view_mode": "tree",
+            "view_mode": "form",
             "res_model": "account.move",
+            "res_id": self.factura.id,
+            "context": "{'create' : False}",
+        }
+
+    def action_view_compras(self):
+        if len(self.compras_id) > 1:
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Compras Proveedor",
+                "domain": [("id", "in", self.compras_id.ids)],
+                "view_type": "tree",
+                "view_mode": "tree,form",
+                "res_model": "purchase.order",
+                "context": "{'create' : False}",
+            }
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Compras Proveedor",
+            "view_mode": "form",
+            "res_model": "purchase.order",
+            "res_id": self.compras_id.id,
+            "context": "{'create' : False}",
+        }
+
+    def action_view_tareas(self):
+        if len(self.tarea_mant) > 1:
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Tareas de Mantenimiento",
+                "domain": [("id", "in", self.tarea_mant.ids)],
+                "view_type": "tree",
+                "view_mode": "tree,form",
+                "res_model": "tarea.mantenimiento",
+                "context": "{'create' : False}",
+            }
+        return {
+            "type": "ir.actions.act_window",
+            "name": "Tareas de Mantenimiento",
+            "view_mode": "form",
+            "res_model": "tarea.mantenimiento",
+            "res_id": self.tarea_mant.id,
             "context": "{'create' : False}",
         }
 
     def action_view_cotizaciones(self):
+        if len(self.cotizacion_id) > 1:
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Ventas",
+                "domain": [("id", "in", self.cotizacion_id.ids)],
+                "view_type": "tree",
+                "view_mode": "tree,form",
+                "res_model": "sale.order",
+                "context": "{'create' : False}",
+            }
         return {
             "type": "ir.actions.act_window",
             "name": "Ventas",
@@ -125,9 +212,19 @@ class OrdenCompras(models.Model):
         }
 
     def action_view_servicios(self):
+        if len(self.ot_servicio) > 1:
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Ordenes de Servicios",
+                "domain": [("id", "in", self.ot_servicio.ids)],
+                "view_type": "tree",
+                "view_mode": "tree,form",
+                "res_model": "maintenance.request",
+                "context": "{'create' : False}",
+            }
         return {
             "type": "ir.actions.act_window",
-            "name": "Ordenes de Compra",
+            "name": "Ordenes de Servicios",
             "view_mode": "form",
             "res_model": "maintenance.request",
             "res_id": self.ot_servicio.id,
@@ -135,57 +232,45 @@ class OrdenCompras(models.Model):
         }
 
     def action_view_guia(self):
+        if len(self.guia_generada) > 1:
+            return {
+                "type": "ir.actions.act_window",
+                "name": "Guías Electronicas",
+                "domain": [("id", "in", self.guia_generada.ids)],
+                "view_type": "tree",
+                "view_mode": "tree,form",
+                "res_model": "stock.picking",
+                "context": "{'create' : False}",
+            }
         return {
             "type": "ir.actions.act_window",
             "name": "Guías Electronicas",
-            "res_id": self.guia_generada.id,
             "view_mode": "form",
             "res_model": "stock.picking",
+            "res_id": self.guia_generada.id,
             "context": "{'create' : False}",
         }
 
-    def descargar_guia(self):
-        """Redirige a la URL de descarga"""
-        self.ensure_one()
-        if not self.guia_id:
-            return {
-                "type": "ir.actions.client",
-                "tag": "display_notification",
-                "params": {
-                    "title": "Error",
-                    "message": "No hay un archivo disponible para descargar.",
-                    "type": "danger",
-                    "sticky": False,
-                },
-            }
-        return {
-            "type": "ir.actions.act_url",
-            "url": f"/web/content/{self.id}/guia_id?download=true",
-            "target": "self",
-        }
-    
-
-    def action_set_email (self):
+    def action_set_email(self):
         template = self.env.ref("oc_compras.template_oc_email")
         ctx = {
-                'default_model': 'oc.compras',  # Modelo actual
-                'default_res_ids': [self.id],  # ID del registro
-                'default_use_template': True,
-                'default_template_id': template.id,
-                'default_composition_mode': 'comment',  # Modo de composición
-                'force_email': True,
-            }
+            "default_model": "oc.compras",  # Modelo actual
+            "default_res_ids": [self.id],  # ID del registro
+            "default_use_template": True,
+            "default_template_id": template.id,
+            "default_composition_mode": "comment",  # Modo de composición
+            "force_email": True,
+        }
 
         return {
-                'type': 'ir.actions.act_window',
-                'view_mode': 'form',
-                'res_model': 'mail.compose.message',
-                'views': [(False, 'form')],
-                'view_id': False,
-                'target': 'new',
-                'context': ctx,
-            }
-
+            "type": "ir.actions.act_window",
+            "view_mode": "form",
+            "res_model": "mail.compose.message",
+            "views": [(False, "form")],
+            "view_id": False,
+            "target": "new",
+            "context": ctx,
+        }
 
 
     def action_post_cotizacion(self):
@@ -217,6 +302,7 @@ class OrdenCompras(models.Model):
                         }
                     elif sale.is_servicio and line.id_equipo:
                         sale.action_confirm()
+
     def action_create_invoice(self):
         self.ensure_one()
         # Validar que existe cotizacion_id
@@ -239,26 +325,25 @@ class OrdenCompras(models.Model):
     @api.model
     def create(self, vals):
         vals["name"] = self.env["ir.sequence"].next_by_code("oc.compras")
+        if "state" in vals:
+            self.write_ruta_estado()
+        if "cotizacion_id" in vals:
+            self.action_update_data()
 
         return super(OrdenCompras, self).create(vals)
 
     def write(self, vals):
         result = super(OrdenCompras, self).write(vals)
-        # self.write_oc()
-        # if "oc" in vals:
-        #     self.write_oc()
-        if "cotizacion_id" in vals:
-            self.write_oc_cotizacion()
-            self.registrar_cotizacion()
-            self.delete_cotizacion()
         if "state" in vals:
             self.write_ruta_estado()
             if self.state.secuencia == 8:
                 self.notificacion_facturar()
-        if "guia_id" in vals:
-            self.registrar_guia()
+        # if "guia_id" in vals:
+        #     self.registrar_guia()
         if "factura_sunat" in vals:
             self._update_estado_factura()
+        if "cotizacion_id" in vals:
+            self.action_update_data()
         return result
 
     def _update_estado_factura(self):
@@ -280,23 +365,6 @@ class OrdenCompras(models.Model):
             else:
                 # Asignar False si 'oc' no está definido
                 record.oc_existente = False
-
-    @api.depends("cotizacion_id")
-    def delete_cotizacion(self):
-        for record in self:
-            # Busca las cotizaciones vinculadas a esta OC
-            cotizaciones = self.env["sale.order"].search([("oc_id", "=", record.id)])
-
-            # Si tiene cotización vinculada, procesamos la desvinculación
-            if record.cotizacion_id:
-                for cotizacion in cotizaciones:
-                    # Desvincula la OC de la cotización encontrada si no es la misma
-                    if record.cotizacion_id.id != cotizacion.id:
-                        cotizacion.write({"oc_id": False})
-            elif not record.cotizacion_id:
-                # Si no hay cotización vinculada, seguimos con el proceso de desvinculación
-                for cotizacion in cotizaciones:
-                    cotizacion.write({"oc_id": False})
 
     def write_ruta_estado(self):
         for record in self:
@@ -329,7 +397,7 @@ class OrdenCompras(models.Model):
                 record.cliente = record.cotizacion_id.partner_id.id
                 # record.ot_servicio = record.cotizacion_id.ots.id
 
-    @api.onchange("oc","cotizacion_id")
+    @api.onchange("oc", "cotizacion_id")
     def registrar_cotizacion(self):
         for record in self:
             if record.cotizacion_id:
@@ -341,44 +409,154 @@ class OrdenCompras(models.Model):
                 )
                 if estado_atencion:
                     record.state = estado_atencion.id
-    @api.depends('cotizacion_id')
-    def _compute_cotizacion_preview_html(self):
-        base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
-        for record in self:
-            if record.cotizacion_id:
-                url = f"{base_url}/web#id={record.cotizacion_id.id}&view_type=form&model=sale.order"
-                record.cotizacion_preview_html = f'<iframe src="{url}" width="100%" height="400px" style="border:1px solid #ccc;"></iframe>'
-            else:
-                record.cotizacion_preview_html = "<p>No hay vista previa disponible.</p>"
 
-
-
-    def registrar_guia(self):
-        if self.guia_id:
-            self.state = self.env.ref(
-                "oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False
-            ).id
+    # def registrar_guia(self):
+    #     if self.guia_id:
+    #         self.state = self.env.ref(
+    #             "oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False
+    #         ).id
 
     @api.model
     def _read_group_stage_ids(self, states, domain, order):
         return self.env["estado.orden"].search([], order=order)
 
-    def create_cotizacion(self):
+    def validar_ot_mantenimiento(self, coti):
         for record in self:
-            if record.cliente:
-                coti = self.env["sale.order"].create(
-                    {"partner_id": record.cliente.id, "oc_id": record.id}
-                )
-                record.cotizacion_id = coti.id
+            orden_trabajo = self.env["maintenance.request"].search(
+                [("tarea", "=", coti.ots.id)], limit=1
+            )
+            factura = self.env["account.move"].search(
+                [("invoice_origin", "=", coti.name), ("state", "=", "posted")], limit=1
+            )
+            state_fac = self.env["maintenance.stage"].srarch(
+                [("is_finalizado", "=", True)], limit=1
+            )
+            print("DATOS DE MANTEWNIMEINTO OC ------------------------->")
+            print(orden_trabajo)
+            print(orden_trabajo.name)
+            print(coti.name)
+            print(coti.ots)
+            print(coti.ots.oc_id)
+            print(state_fac.name)
+            coti.ots.oc_id = record.id
 
-                return {
-                    "type": "ir.actions.act_window",
-                    "view_mode": "form",
-                    "res_model": "sale.order",
-                    "res_id": coti.id,
-                    "target": "current",
-                }
-            else:
-                raise UserError(
-                    _("Antes de crear una cotizacion tienes que registrar un cliente")
+            if orden_trabajo:
+                orden_trabajo.order_compra = record.id
+                estado = self.env.ref(
+                    "oc_compras.estado_servicios", raise_if_not_found=False
                 )
+                record.state = estado.id
+                if factura:
+                    record.orden_trabajo.stage_id = state_fac.id
+
+    def action_update_data(self):
+        for record in self:
+            for coti in record.cotizacion_id:
+                coti.client_order_ref = record.oc
+                grupo = self.env["procurement.group"].search(
+                    [("name", "=", coti.name)], limit=1
+                )
+                if grupo:
+                    compras = self.env["purchase.order"].search(
+                        [("origin", "=", coti.name)]
+                    )
+                    entregas = self.env["stock.picking"].search(
+                        [("group_id", "=", grupo.id)]
+                    )
+                    print("DATOSSSS GLOBALES OC COMPRAS----------------------->")
+                    print([("group_id", "=", grupo.id)])
+                    print([("group_id", "=", grupo.name)])
+                    print(entregas)
+                    factura = self.env["account.move"].search(
+                        [("invoice_origin", "=", coti.name), ("state", "=", "posted")],
+                        limit=1,
+                    )
+
+                    # --- COMPRAS ---
+                    for compra in compras:
+                        compra.oc_id = record.id
+                        if compra.state == "cancel":
+                            compra.oc_id = None
+                            continue  # no hacer nada con compras canceladas
+
+                        if compra.state in ("draft", "sent"):
+                            estado = self.env.ref(
+                                "oc_compras.estado_proveedor_solicitud",
+                                raise_if_not_found=False,
+                            )
+                        elif compra.state == "purchase":
+                            estado = self.env.ref(
+                                "oc_compras.estado_solicitud_aceptada",
+                                raise_if_not_found=False,
+                            )
+                        else:
+                            recepcion = self.env["stock.picking"].search(
+                                [
+                                    ("group_id", "=", grupo.id),
+                                    ("picking_type_id.code", "=", "incoming"),
+                                    ("state", "=", "done"),
+                                    ("return_ids", "=", False),
+                                ],
+                                limit=1,
+                            )
+                            if recepcion:
+                                recepcion.oc_id = record.id
+                                estado = self.env.ref(
+                                    "oc_compras.estado_producto_almacen",
+                                    raise_if_not_found=False,
+                                )
+                            else:
+                                estado = False
+                        if estado:
+                            record.state = estado.id
+
+                    # --- ENTREGAS ---
+                    for entrega in entregas:
+                        entrega.oc_id = record.id
+
+                    if entregas:
+                        estado = self.env.ref(
+                            "oc_compras.estado_entrega_atencion",
+                            raise_if_not_found=False,
+                        )
+                        record.state = estado.id
+
+                        entrega_out = self.env["stock.picking"].search(
+                            [
+                                ("group_id", "=", grupo.id),
+                                ("picking_type_id.code", "=", "outgoing"),
+                                ("state", "=", "done"),
+                                ("return_ids", "=", False),
+                            ],
+                            limit=1,
+                        )
+
+                        if entrega_out and entrega_out.pe_guide_number != "/":
+                            estado = self.env.ref(
+                                "oc_compras.estado_guia_generado",
+                                raise_if_not_found=False,
+                            )
+                            record.state = estado.id
+                            if coti.ots:
+                                self.validar_ot_mantenimiento(coti)
+
+                    # --- FACTURA ---
+                    if factura:
+                        estado = self.env.ref(
+                            "oc_compras.estado_facturado", raise_if_not_found=False
+                        )
+                        record.state = estado.id
+                        factura.oc_id = record.id
+                        if factura.payment_state == "paid":
+                            estado = self.env.ref(
+                                "oc_compras.estado_factura_cancelada",
+                                raise_if_not_found=False,
+                            )
+                            record.state = estado.id
+
+                        if coti.ots:
+                            self.validar_ot_mantenimiento(coti)
+
+                    # --- OTS sin entregas ni factura ---
+                    if not entregas and not factura and coti.ots:
+                        self.validar_ot_mantenimiento(coti)

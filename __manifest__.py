@@ -4,7 +4,7 @@
     'description': 'Gestor de órdenes de compras para facilitar la administración y control de procesos.',
     'summary': 'Módulo para gestión avanzada de órdenes de compra.',
     'author': 'Yostin Palacios',
-    'website': 'https://example.com',  # Cambia a tu sitio web si aplica
+    'website': 'https://equiposindustriales.pe/',  # Cambia a tu sitio web si aplica
     'license': 'LGPL-3',
     'category': 'Sales',
     'depends': [
@@ -15,6 +15,10 @@
         'purchase',
         'web',
         'website',
+        'solse_pe_cpe_guias',
+        'pmant',
+        'maintenance',
+        'custom_fpc_compras'
     ],
     'data': [
         'security/security.xml',
@@ -32,6 +36,7 @@
         'view/guias/action_guias_vieew.xml',
         # TEMPLATE DE EMAIL
         'view/email/template_email_oc.xml',
+        'view/sale/sale_view-form.xml',
 
     ],
     'assets': {
