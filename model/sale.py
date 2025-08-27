@@ -8,115 +8,46 @@ class SaleOrder (models.Model):
     _description = 'Orden de Venta'
 
     oc_id = fields.Many2one('oc.compras', string="OC", ondelete="set null",)
-    state = fields.Selection( selection_add=[("facturado", "Facturado")])
-
-    def action_confirm(self):
-        result = super(SaleOrder, self).action_confirm()
-        for record in self:
-            if record.oc_id:
-                try:
-                    # Buscamos el Orden de entrega de la cotizacion que cumpla 3 filtros
-                    orden = self.orden_entrega_confirmada()
-                    if orden:
-                        estado = self.env.ref('oc_compras.estado_entrega_atencion', raise_if_not_found=False)
-                        if estado:
-                            record.oc_id.state = estado.id
-                        else:
-                            print("No se encontró el estado 'estado_entrega_atencion'.")
-                    
-                    elif not orden :
-                        # Buscamos una OC al proveedor de la cotizacion
-                        oc_proveedor = self.search_oc_proveedor() 
-                        if oc_proveedor:
-                            estado = self.env.ref('oc_compras.estado_proveedor_solicitud', raise_if_not_found=False)
-                            if estado:
-                                record.oc_id.state = estado.id
-                except UserError as e:
-                    print(f"Error validado por el usuario: {e}")
-                except Exception as e:
-                    print(f"Error inesperado: {e}")
-        return result
+    # state = fields.Selection( selection_add=[("facturado", "Facturado")])
+    state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura")
 
 
+    def create(self, vals):
+        res = super(SaleOrder, self).create(vals)
+        if "state_factura" in vals:
+            res.state_factura = ''
 
-    def action_view_delivery (self):
-        res = super(SaleOrder, self).action_view_delivery()
-        for record in self:
-            if record.oc_id:
-                picking_ids = record.env['stock.picking'].search([
-                    ('origin', '=', record.name),
-                    ('state', '=', 'assigned'),
-                    ('picking_type_id.code', '=', 'outgoing'),
-                    ('location_dest_id.usage', '=', 'customer')
-                ])
-                if picking_ids:
-                    res['domain'] = [('id', 'in', picking_ids.ids)]
         return res
 
-    # def create_mantenimiento (self) :
-    #     try:
-    #         res = super(SaleOrder, self).create_mantenimiento()
-            
-    #         for record in self:
-    #             if record.oc_id:
-    #                 estado = self.env.ref('oc_compras.estado_servicios', raise_if_not_found=False)
-    #                 print('----------------------------------------')
-    #                 print(estado)
-    #                 if estado: 
-    #                     print('EL ESTADO EXISTE ----------------------------')
-
-    #                     record.ots.oc_id = self.oc_id.id
-    #                     record.oc_id.state = estado.id
-    #         return res
-
-    #     except Exception as e:
-    #                 print(f"Error inesperado: {e}")
 
 
-    def orden_entrega_confirmada(self):
-        name_cotizacion = self.name
-        print(self.name)
-        print(self.oc_id.id)
-        orden = self.env['stock.picking'].search([
-            ('origin', '=', name_cotizacion),
-            ('state', '=', 'assigned'),
-            # ('products_availability', '=', 'Disponible')
-        ])
-        print(orden)
-        if orden:
-            orden.oc_id = self.oc_id.id
-            return True
-        return False
-
-    def search_oc_proveedor (self):
+    def action_confirm(self):
+        res = super(SaleOrder, self).action_confirm()
         for record in self:
-            cotizacion = record.name
-            oc_proveedor = self.env['purchase.order'].search([("origin", "ilike", cotizacion)])
-            if oc_proveedor:
-                oc_proveedor.oc_id = record.oc_id.id 
-                return True
-        return False
+            if record.state_factura:
+                record.state_factura = ''
+            if record.oc_id:
+                grupo = self.env["procurement.group"].search([("name", "=", record.name)])
+                if grupo:
+                    entregas = self.env["stock.picking"].search([("group_id", "=", grupo.id)])
+                    compras = self.env["purchase.order"].search([("origin", "=", record.name)])
+                    if entregas and not compras:
+                        for entrega in entregas:
+                            entrega.oc_id = record.oc_id.id
+                            # estado = self.env.ref('oc_compras.estado_entrega_atencion', raise_if_not_found=False)
+                            # record.oc_id.state = estado.id
+                    if compras:
+                        for compra in compras:
+                            compra.oc_id = record.oc_id.id  
+                            estado = self.env.ref('oc_compras.estado_proveedor_solicitud', raise_if_not_found=False)
+                            record.oc_id.state = estado.id
+                    if record.ots:
+                        record.ots.oc_id = record.oc_id.id
+                        estado = self.env.ref('oc_compras.estado_servicios', raise_if_not_found=False)
+                        record.oc_id.state = estado.id
+        return res
 
 
 
-    # def create_invoices (self):
-    #     result = super(SaleOrder, self).create_invoices()
-
-    #     for record in self: 
-    #         if record.oc_id :
-    #             factura = self.env['account.move'].search([('invoice_origin', '=', record.invoice_origin)], limit=1)
-    #             if factura : 
-    #                 factura.oc_id = record.oc_id.id
-    #                 record.oc_id.factura = factura.id
-    #                 estado = self.env.ref('oc_compras.estado_facturado', raise_if_not_found=False)
-    #                 if estado:
-    #                     record.oc_id.state = estado.id
-    #     return result
-
-
-    #     else :
-    #         self.ordeners_compra_proveedor_confirm()
-
-
-    # def ordeners_compra_proveedor_confirm (self):
-    #     return False
+# class SaleOrderLine(models.Model):
+#     _inherit 
