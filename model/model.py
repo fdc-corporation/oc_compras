@@ -277,7 +277,7 @@ class OrdenCompras(models.Model):
         self.ensure_one()
         if not self.cotizacion_id:
             return
-        if self.cotizacion_id.state != 'draft' and self.cotizacion_id.state != 'sent':
+        if self.cotizacion_id.state not in ['draft', 'sent']:
             return {
                 "type": "ir.actions.client",
                 "tag": "display_notification",
@@ -288,20 +288,26 @@ class OrdenCompras(models.Model):
                     "sticky": False,
                 },
             }
+
         for sale in self.cotizacion_id:
-            if sale.state == 'draft' or sale.state == 'sent':
-                for line in sale.order_line:
-                    if sale.is_servicio and not line.id_equipo :
-                        return {
-                            "name": "Confirmacion de venta",
-                            "type": "ir.actions.act_window",
-                            "res_model": "wizard.sale.order",
-                            "view_mode": "form",
-                            "target": "new",
-                            "context": {"default_order_id": sale.id},
-                        }
-                    elif sale.is_servicio and line.id_equipo:
-                        sale.action_confirm()
+            if sale.state in ['draft', 'sent']:
+                # Buscar si hay alguna línea de servicio sin equipo
+                needs_equipo = any(
+                    sale.is_servicio and not line.id_equipo
+                    for line in sale.order_line
+                )
+                if needs_equipo:
+                    return {
+                        "name": "Confirmacion de venta",
+                        "type": "ir.actions.act_window",
+                        "res_model": "wizard.sale.order",
+                        "view_mode": "form",
+                        "target": "new",
+                        "context": {"default_order_id": sale.id},
+                    }
+                else:
+                    # Si todas las líneas están correctas => confirmar
+                    sale.action_confirm()
 
     def action_create_invoice(self):
         self.ensure_one()
