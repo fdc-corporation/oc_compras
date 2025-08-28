@@ -36,9 +36,10 @@
                     <field name="active" invisible="1" />
 
                     <header>
-                        <button name="action_post_cotizacion" class="oe_highlight" type="object" string="Confirmar Cotizacion"  />
+                        <button name="action_post_cotizacion" invisible="not sale_is_draft" class="oe_highlight" type="object" string="Confirmar Cotizacion"  />
                         <button name="action_set_email" type="object" string="Enviar correo"  />
                         <field name="active" invisible="1" />
+                        <field name="sale_is_draft" invisible="1" />
                         <field name="state" widget="statusbar" options="{'clickable': True}" />                        
                     </header>
                     <sheet>
