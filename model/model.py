@@ -109,6 +109,20 @@ class OrdenCompras(models.Model):
     active = fields.Boolean(default=True)
     compras_id = fields.One2many("purchase.order", "oc_id", string="OC proveedor")
     observaciones = fields.Text(string="Observaciones")
+    sale_is_draft = fields.Boolean(string="Las cotizacion estan en borrador?", compute="_get_vaue_sale_state")
+
+    def _get_vaue_sale_state (self):
+        self.ensure_one()
+        if self.cotizacion_id:
+            for sale in self.cotizacion_id:
+                if sale.state != "draft" and sale.state "sent":
+                    self.sale_is_draft = False
+                else :
+                    self.sale_is_draft = True
+        else : 
+            self.sale_is_draft = False
+
+
     @api.model
     def _group_expand_stages(self, stages, domain, order):
         return self.env["estado.orden"].search([], order=order)
