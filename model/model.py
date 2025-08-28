@@ -115,7 +115,7 @@ class OrdenCompras(models.Model):
         self.ensure_one()
         if self.cotizacion_id:
             for sale in self.cotizacion_id:
-                if sale.state != "draft" and sale.state "sent":
+                if sale.state != "draft" and sale.state  !="sent":
                     self.sale_is_draft = False
                 else :
                     self.sale_is_draft = True
