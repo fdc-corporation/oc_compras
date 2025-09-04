@@ -233,6 +233,14 @@
                                                     <field name="cotizacion_id" widget="many2many_tags" ></field>
                                                 </td>
                                             </tr>
+                                            <tr>
+                                                <td class="align-top">
+                                                    <strong>Orden de Trabajo:</strong>
+                                                </td>
+                                                <td>
+                                                    <field name="ot_servicio" widget="many2many_tags" ></field>
+                                                </td>
+                                            </tr>
                                             <tr t-if="record.fecha_solicitud">
                                                 <td>
                                                     <strong>Fecha:</strong>
