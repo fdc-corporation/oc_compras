@@ -96,17 +96,15 @@ class FacturaOC(models.Model):
 
     def button_annul(self):
         result = super(FacturaOC, self).button_annul()
-        for record in self:
-            if record.move_ids:
-                for fac in record.move_ids:
-                    name_orden = fac.invoice_origin or ""
-                    ordenes = [n.strip() for n in name_orden.split(",")] if "," in name_orden else [name_orden.strip()]
-                    sales = self.env['sale.order'].search([('name', 'in', ordenes)])
-                    for sale in sales:
-                        sale.state_factura = ''
-                        state_oc = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
-                        if state_oc :
-                            sale.oc_id.state = state_oc.id
+        for fac in self:
+                name_orden = fac.invoice_origin or ""
+                ordenes = [n.strip() for n in name_orden.split(",")] if "," in name_orden else [name_orden.strip()]
+                sales = self.env['sale.order'].search([('name', 'in', ordenes)])
+                for sale in sales:
+                    sale.state_factura = ''
+                    state_oc = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
+                    if state_oc :
+                        sale.oc_id.state = state_oc.id
         return result 
 
 
