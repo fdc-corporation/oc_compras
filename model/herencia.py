@@ -1,6 +1,6 @@
 from odoo import _, models, fields, api
 from datetime import datetime
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 
@@ -62,6 +62,14 @@ class FacturaOC(models.Model):
 
     oc_id = fields.Many2one("oc.compras", string="OC")
 
+
+
+    @api.constrains("invoice_origin")
+    def _validation_create(self):
+        for record in self:
+            if not record.invoice_origin:
+                return raise ValidationError("No se pede crear facturas sin una venta o compra")
+    
 
     def action_post(self):
         result = super(FacturaOC, self).action_post()
