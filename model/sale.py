@@ -10,7 +10,7 @@ class SaleOrder (models.Model):
     oc_id = fields.Many2one('oc.compras', string="OC", ondelete="set null",)
     # state = fields.Selection( selection_add=[("facturado", "Facturado")])
     state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura", copy=False)
-
+    fecha_factura = fields.Datetime(string="Fecha de facturacion")
 
     def create(self, vals):
         res = super(SaleOrder, self).create(vals)
@@ -18,6 +18,7 @@ class SaleOrder (models.Model):
             res.state_factura = ''
 
         return res
+
 
 
 
