@@ -28,6 +28,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="oc_id" readonly="True" />
+                <field name="peso" />
             </xpath>
         </field>
     </record>
