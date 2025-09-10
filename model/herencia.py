@@ -255,7 +255,7 @@ class ComprasOC(models.Model):
     _inherit = "purchase.order"
 
     oc_id = fields.Many2one("oc.compras", string="OC")
-    peso = fields.Interger(string="Peso (kg)", default=0)
+    peso = fields.Integer(string="Peso (kg)")
 
     def button_confirm(self):
         res = super(ComprasOC, self).button_confirm()
