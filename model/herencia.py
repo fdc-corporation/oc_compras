@@ -195,7 +195,7 @@ class AccountReverse(models.TransientModel):
     def  modify_moves (self):
         result = super(AccountReverse, self).modify_moves()
         for fac in self:
-            name_orden = fac.invoice_origin or ""
+            name_orden = fac.invoice_origin if fac.invoice_origin else ""
             ordenes = [n.strip() for n in name_orden.split(",")] if "," in name_orden else [name_orden.strip()]
             sales = self.env['sale.order'].search([('name', 'in', ordenes)])
 
