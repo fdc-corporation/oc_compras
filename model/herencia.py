@@ -62,11 +62,12 @@ class FacturaOC(models.Model):
 
     oc_id = fields.Many2one("oc.compras", string="OC")
 
-    @api.model
-    def create(self, vals):
-        if not vals.get("invoice_origin"):
-            raise ValidationError(_("No se puede crear una factura sin una venta o compra."))
-        return super().create(vals)    
+    @api.constrains('invoice_origin')
+    def _check_invoice_origin(self):
+        for record in self:
+            if record.move_type in ['out_invoice', 'in_invoice'] and not record.invoice_origin:
+                raise ValidationError(_("No se puede crear una factura sin una orden de venta o compra."))
+
 
     def action_post(self):
         result = super(FacturaOC, self).action_post()
