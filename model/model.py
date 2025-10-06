@@ -56,7 +56,7 @@ class OrdenCompras(models.Model):
     body = fields.Html(string="Contenido")
     documentos = fields.Many2many("ir.attachment", string="Adjuntos")
     cliente = fields.Many2one("res.partner", string="Cliente")
-    celular = fields.Char(related="cliente.mobile", string="Celular", store=True)
+    celular = fields.Char(related="cliente.phone", string="Celular", store=True)
     correo = fields.Char(related="cliente.email", string="Correo", store=True)
     cotizacion_id = fields.One2many("sale.order", "oc_id", string="Cotización")
     factura = fields.One2many("account.move", "oc_id", string="Factura")
@@ -65,7 +65,7 @@ class OrdenCompras(models.Model):
         string="Estado",
         tracking=True,
         required=True,
-        group_expand="_group_expand_stages",
+        group_expand="_read_group_stage_ids",
         default=lambda self: self.env["estado.orden"].search([], limit=1),
     )
     oc = fields.Char(string="N° de OC")
@@ -123,9 +123,9 @@ class OrdenCompras(models.Model):
             self.sale_is_draft = False
 
 
-    @api.model
-    def _group_expand_stages(self, stages, domain, order):
-        return self.env["estado.orden"].search([], order=order)
+    def _read_group_stage_ids(self, stages, domain):
+        stage_ids = stages.sudo()._search([], order=stages._order)
+        return stages.browse(stage_ids)
 
     def _total_facturas(self):
         self.facturas_cantidad = len(self.factura)
@@ -151,8 +151,8 @@ class OrdenCompras(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Facturas",
                 "domain": [("id", "in", self.factura.ids)],
-                "view_type": "tree",
-                "view_mode": "tree,form",
+                "view_type": "list",
+                "view_mode": "list,form",
                 "res_model": "account.move",
                 "context": "{'create' : False}",
             }
@@ -171,8 +171,8 @@ class OrdenCompras(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Compras Proveedor",
                 "domain": [("id", "in", self.compras_id.ids)],
-                "view_type": "tree",
-                "view_mode": "tree,form",
+                "view_type": "list",
+                "view_mode": "list,form",
                 "res_model": "purchase.order",
                 "context": "{'create' : False}",
             }
@@ -191,8 +191,8 @@ class OrdenCompras(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Tareas de Mantenimiento",
                 "domain": [("id", "in", self.tarea_mant.ids)],
-                "view_type": "tree",
-                "view_mode": "tree,form",
+                "view_type": "list",
+                "view_mode": "list,form",
                 "res_model": "tarea.mantenimiento",
                 "context": "{'create' : False}",
             }
@@ -211,8 +211,8 @@ class OrdenCompras(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Ventas",
                 "domain": [("id", "in", self.cotizacion_id.ids)],
-                "view_type": "tree",
-                "view_mode": "tree,form",
+                "view_type": "list",
+                "view_mode": "list,form",
                 "res_model": "sale.order",
                 "context": "{'create' : False}",
             }
@@ -231,8 +231,8 @@ class OrdenCompras(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Ordenes de Servicios",
                 "domain": [("id", "in", self.ot_servicio.ids)],
-                "view_type": "tree",
-                "view_mode": "tree,form",
+                "view_type": "list",
+                "view_mode": "list,form",
                 "res_model": "maintenance.request",
                 "context": "{'create' : False}",
             }
@@ -251,8 +251,8 @@ class OrdenCompras(models.Model):
                 "type": "ir.actions.act_window",
                 "name": "Guías Electronicas",
                 "domain": [("id", "in", self.guia_generada.ids)],
-                "view_type": "tree",
-                "view_mode": "tree,form",
+                "view_type": "list",
+                "view_mode": "list,form",
                 "res_model": "stock.picking",
                 "context": "{'create' : False}",
             }
@@ -342,14 +342,22 @@ class OrdenCompras(models.Model):
         return action
 
     @api.model
-    def create(self, vals):
-        vals["name"] = self.env["ir.sequence"].next_by_code("oc.compras")
-        if "state" in vals:
-            self.write_ruta_estado()
-        if "cotizacion_id" in vals:
-            self.action_update_data()
+    def create(self, vals_list):
+        for vals in vals_list:
+            # Si no hay nombre o está como "New", asignar secuencia
+            if vals.get("name", _("New")) == _("New"):
+                vals["name"] = self.env["ir.sequence"].next_by_code("oc.compras") or "/"
 
-        return super(OrdenCompras, self).create(vals)
+        records = super(OrdenCompras, self).create(vals_list)
+
+        # Post-procesar cada registro creado
+        for rec, vals in zip(records, vals_list):
+            if "state" in vals:
+                rec.write_ruta_estado()
+            if "cotizacion_id" in vals:
+                rec.action_update_data()
+
+        return records
 
     def write(self, vals):
         result = super(OrdenCompras, self).write(vals)
@@ -429,15 +437,7 @@ class OrdenCompras(models.Model):
                 if estado_atencion:
                     record.state = estado_atencion.id
 
-    # def registrar_guia(self):
-    #     if self.guia_id:
-    #         self.state = self.env.ref(
-    #             "oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False
-    #         ).id
 
-    @api.model
-    def _read_group_stage_ids(self, states, domain, order):
-        return self.env["estado.orden"].search([], order=order)
 
     def validar_ot_mantenimiento(self, coti):
         for record in self:
@@ -447,7 +447,7 @@ class OrdenCompras(models.Model):
             factura = self.env["account.move"].search(
                 [("invoice_origin", "=", coti.name), ("state", "=", "posted")], limit=1
             )
-            state_fac = self.env["maintenance.stage"].srarch(
+            state_fac = self.env["maintenance.stage"].search(
                 [("is_finalizado", "=", True)], limit=1
             )
             print("DATOS DE MANTEWNIMEINTO OC ------------------------->")
@@ -472,15 +472,13 @@ class OrdenCompras(models.Model):
         for record in self:
             for coti in record.cotizacion_id:
                 coti.client_order_ref = record.oc
-                grupo = self.env["procurement.group"].search(
-                    [("name", "=", coti.name)], limit=1
-                )
+                grupo = coti
                 if grupo:
                     compras = self.env["purchase.order"].search(
-                        [("origin", "=", coti.name)]
+                        [("origin", "=", grupo.name)]
                     )
                     entregas = self.env["stock.picking"].search(
-                        [("group_id", "=", grupo.id)]
+                        [("sale_id", "=", grupo.id)]
                     )
                     print("DATOSSSS GLOBALES OC COMPRAS----------------------->")
                     print([("group_id", "=", grupo.id)])

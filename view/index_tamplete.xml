@@ -8,6 +8,7 @@
             <field name="prefix">ORC/</field>
             <field name="padding">5</field>
             <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
         </record>
 
         <record id="oc_compras_view_search" model="ir.ui.view">
@@ -140,22 +141,22 @@
                             </page>
                             <page string="Adjuntos">
                                 <field name="documentos">
-                                    <tree>
+                                    <list>
                                         <field name="name" string="Nombre del archivo"/>
                                         <field name="type" string="Tipo de archivo"/>
                                         <field name="mimetype" string="Tipo de archivo"/>
                                         <button name="download_file" type="object" string="Descargar archivo" />
 
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             <page string="Guias firmadas">
                                 <field name="guia_firmada_ids">
-                                    <tree editable="bottom">
+                                    <list editable="bottom">
                                         <field name="archivo" filename="filename" widget="binary"/>
                                         <field name="filename"/>
                                         <field name="fecha_subida"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                             <page name="nota" string="Observaciones">
@@ -164,11 +165,7 @@
                         </notebook>
                         
                     </sheet>
-                    <div class="oe_chatter">
-                            <field name="message_follower_ids" widget="mail_followers" />
-                            <field name="activity_ids" widget="mail_activity" />
-                            <field name="message_ids" widget="mail_thread" />
-                        </div>
+                    <chatter/>
                 </form>
             </field>
         </record>
@@ -187,85 +184,40 @@
                 <field name="fecha_solicitud"/>
                 <field name="is_finalizado"/>
                 <templates>
-                    <t t-name="kanban-tooltip">
-                        <ul class="oe_kanban_tooltip">
-                            <li t-if="record.creado_por">
-                                <b>Creado por:</b>
-                                <t t-esc="record.creado_por.value"/>
-                            </li>
-                        </ul>
+                    <t t-name="menu">
+                        <t t-if="widget.editable"><a role="menuitem" type="open" class="dropdown-item">Edit...</a></t>
+                        <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
                     </t>
-                    <t t-name="kanban-box">
-                        <div class="oe_kanban_global_click oe_semantic_html_override border rounded shadow-sm p-2 bg-white">
-                            <div class="oe_kanban_content" tooltip="kanban-tooltip">
-                                <!-- Encabezado -->
-                                <div class="o_kanban_record_top mb-2">
-                                    <b class="o_kanban_record_title text-primary" style="font-size: 1.1em;">
-                                        <field name="cliente"/>
-                                    </b>
-                                </div>
-                                <!-- Cuerpo -->
-                                <div class="o_kanban_record_body">
-                                    <table class="table table-sm o_table_hover">
-                                        <tr>
-                                            <td>
-                                                <strong>Secuencia:</strong>
-                                            </td>
-                                            <td>
-                                                <field name="name"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <strong>OC Cliente:</strong>
-                                            </td>
-                                            <td>
-                                                <field name="oc"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-top">
-                                                <strong>Cotizaciones:</strong>
-                                            </td>
-                                            <td>
-                                                <field name="cotizacion_id" widget="many2many_tags" ></field>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                                <td class="align-top">
-                                                    <strong>Orden de Trabajo:</strong>
-                                                </td>
-                                                <td>
-                                                    <field name="ot_servicio" widget="many2many_tags" ></field>
-                                                </td>
-                                        </tr>
-                                        <tr t-if="record.fecha_solicitud">
-                                            <td>
-                                                <strong>Fecha:</strong>
-                                            </td>
-                                            <td>
-                                                <field name="fecha_solicitud" widget="remaining_days"/>
-                                                (
-                                                <field name="fecha_solicitud"/>)
-                                            
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <!-- Pie de tarjeta -->
-                                <div class="o_kanban_record_bottom mt-2 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <field name="prioridad" widget="priority"/>
-                                    </div>
-                                    <div>
-                                        <field name="is_finalizado"/>
-                                    </div>
-                                    <div>
-                                        <field name="state" options="{'clickable': True}"/>
-                                    </div>
-                                </div>
-                            </div>
+                    <t t-name="card">
+                        <field name="name" class="fw-bold fs-5"/>
+                        <div>
+                            <b>Cliente:</b><field name="cliente"/>
                         </div>
+                        <div>
+                            <b>OC Cliente:</b><field name="oc"/>
+                        </div>
+                        <div>
+                            <b>Cotizaciones:</b><field name="cotizacion_id" widget="many2many_tags"/>
+                        </div>
+                        <div>
+                            <b>Orden de Trabajo:</b><field name="ot_servicio" widget="many2many_tags"/>
+                        </div>
+                        <div>
+                            <b>Fecha:</b><field name="fecha_solicitud" widget="remaining_days"/>
+                                (<field name="fecha_solicitud"/>)
+                        </div>                    
+                        <!-- Pie de tarjeta -->
+                        <footer class="o_kanban_record_bottom mt-2 d-flex justify-content-between align-items-center">
+                            <div>
+                                <field name="prioridad" widget="priority"/>
+                            </div>
+                            <div>
+                                <field name="is_finalizado"/>
+                            </div>
+                            <div>
+                                <field name="state" options="{'clickable': True}"/>
+                            </div>
+                        </footer>
                     </t>
                 </templates>
             </kanban>
@@ -277,12 +229,12 @@
             <field name="name">oc.compras.tree</field>
             <field name="model">oc.compras</field>
             <field name="arch" type="xml">
-                <tree string="Órdenes de Compras">
+                <list string="Órdenes de Compras">
                     <field name="name" string="Nº de Orden"/>
                     <field name="compania" />
                     <field name="fecha_solicitud" />
                     <field name="creado_por" />
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -291,12 +243,12 @@
             <field name="name">Órdenes de Compras</field>
             <field name="res_model">oc.compras</field>
             <field name="context">{'search_default_filtrer_mis_oc': 1}</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">kanban,list,form</field>
             <field name="view_id" ref="view_oc_correctivo_kanban"/>            
         </record>
 
         <!-- Menús -->
-        <menuitem id="index_oc_compras_menu" name="Órdenes de Compras" web_icon="oc_compras,src/img/icono.png"  sequence="1"/>
+        <menuitem id="index_oc_compras_menu"  name="Órdenes de Compras" web_icon="oc_compras,src/img/icono.png"  sequence="1" groups="oc_compras.group_user_orden,oc_compras.group_admin_orden" />
         <menuitem id="oc_compras_menu_view" name="Gestionar Órdenes de Compras" parent="index_oc_compras_menu" action="action_oc_compras" sequence="2"/>
   
     </data>

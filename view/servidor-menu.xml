@@ -68,14 +68,14 @@
         <field name="name">servidores.correos.tree</field>
         <field name="model">servidor.correos</field>
         <field name="arch" type="xml">
-            <tree string="Servidores de Correos">
+            <list string="Servidores de Correos">
                 <field name="name" />
                 <field name="correo" />
                 <field name="imap" />
                 <field name="fecha_solicitud" />
                 <field name="creado_por" />
                 <field name="compania" />
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -86,7 +86,7 @@
     <record id="action_servidor_correos" model="ir.actions.act_window">
         <field name="name">Servidores</field>
         <field name="res_model">servidor.correos</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <!-- <field name="context">{'user_id': uid}</field> -->
         <field name="context">{'search_default_filter_servidor': 1}</field>
 

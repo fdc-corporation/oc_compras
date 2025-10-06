@@ -19,9 +19,7 @@ class InventarioOC(models.Model):
                 )
                 record.oc_id.state = estado.id
             else:
-                sale = self.env["sale.order"].search(
-                    [("name", "=", record.group_id.name), ("state", "=", "sale")]
-                )
+                sale = self.sale_id
                 if sale and sale.oc_id:
                     estado = self.env.ref(
                         "oc_compras.estado_guia_generado", raise_if_not_found=False
@@ -45,9 +43,7 @@ class InventarioOC(models.Model):
         result = super(InventarioOC, self).button_validate()
         for record in self:
             if record.picking_type_id.code == "incoming" :
-                sale = self.env["sale.order"].search(
-                    [("name", "=", record.group_id.name)]
-                )
+                sale = self.sale_id
                 if sale:
                     record.oc_id = sale.oc_id.id
                     estado = self.env.ref('oc_compras.estado_proveedor_solicitud', raise_if_not_found=False)

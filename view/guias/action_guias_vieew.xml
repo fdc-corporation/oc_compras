@@ -4,7 +4,7 @@
     <data>
 
 
-        <record id="inheroit_guias-electronicas" model="ir.ui.view">
+        <!-- <record id="inheroit_guias-electronicas" model="ir.ui.view">
             <field name="name">stock.picking.view.tree.inherit</field>
             <field name="model">stock.picking</field>
             <field name="inherit_id" ref="stock.vpicktree"/>
@@ -13,26 +13,26 @@
                     <field name="pe_guide_number" optional="show"/>
                 </xpath>
             </field>
-        </record>
+        </record> -->
 
 
     
-        <record id="view_guias_action" model="ir.actions.act_window">
+        <!-- <record id="view_guias_action" model="ir.actions.act_window">
             <field name="name">Guias Electronicas</field>
             <field name="res_model">stock.picking</field>
             <field name="view_mode">tree,form</field>
             <field name="domain">[("pe_is_eguide", "=", True)]</field>
             <field name="context">{}</field>
-        </record>
+        </record> -->
 
 
-        <menuitem
+        <!-- <menuitem
             id="guias_electronicas_menu"
             name="Guias Electronicas"
             sequence="50"
             parent="sale.sale_order_menu"
             action="view_guias_action"
-            />
+            /> -->
     
     </data>
     

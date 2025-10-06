@@ -66,11 +66,11 @@
         <field name="model">maintenance.request</field>
         <field name="inherit_id" ref="maintenance.hr_equipment_request_view_kanban"/>
         <field name="arch" type="xml">
-            <xpath expr="//kanban" position="inside">
+            <!-- <xpath expr="//kanban" position="inside">
                 <field name="oc_cliente" />
-            </xpath>
-            <xpath expr="//span[@name='schedule_date']" position="before">
-                <span t-if="record.oc_cliente">OC: <field name="oc_cliente" /></span><br></br>
+            </xpath> -->
+            <xpath expr="//field[@name='schedule_date']" position="before">
+               <div>OC: <field name="oc_cliente" /></div>
             </xpath>
         </field>
     </record>
@@ -109,7 +109,7 @@
         <field name="inherit_id" ref="pmant.Tareav_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='cliente']" position="after">
-                <field name="oc_id" groups="pmant.group_pmant_admin"/>
+                <field name="oc_id" groups="pmant.group_pmant_admin,pmant.group_pmant_planner"/>
             </xpath>
         </field>
     </record>

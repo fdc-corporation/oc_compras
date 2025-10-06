@@ -23,21 +23,14 @@ class ServidorCorreos(models.Model):
     fecha_solicitud = fields.Date(
         string="Fecha Solicitud", default=lambda self: fields.Date.today()
     )
-    creado_por = fields.Many2one("res.users", string="Creado por", required=True)
-    compania = fields.Many2one("res.company", string="Compañía")
+    creado_por = fields.Many2one("res.users", string="Creado por", required=True, default=lambda self: self.env.user)
+    compania = fields.Many2one("res.company", string="Compañía", default=lambda self: self.env.company)
     estado = fields.Char(string="Estado", readonly=True)
     smtp = fields.Char(
         string="Servidor SMTP",
     )
     smtp_port = fields.Integer(string="Puerto SMTP", default=587)
 
-    @api.model
-    def create(self, vals):
-        if "creado_por" not in vals:
-            vals["creado_por"] = self.env.user.id
-        if "compania" not in vals:
-            vals["compania"] = self.env.company.id
-        return super(ServidorCorreos, self).create(vals)
 
     def probar_conexion(self):
         for record in self:
@@ -115,13 +108,13 @@ class ServidorCorreos(models.Model):
                             email_user = match.group(1) if match else from_
 
                             valores_oc = [
-                                "OC", "Order", "Orden", "Orden ", "orden", "orden ",
-                                "orden de compra", "Orden de Compra", "Orden de compra",
-                                "Purchase", "PO", "ORDEN DE COMPRA", "oc", "oc: ", "oc:", "OC-", "oc-"
+                                "oc", "order", "orden", "orden",
+                                "purchase", "po", "oc:", "oc-"
                             ]
-
+                            asunto = subject.lower()
+                            asunto = asunto.split(" ")
                             # Verificar si el asunto contiene palabras clave
-                            if any(valor in subject for valor in valores_oc):
+                            if any(valor in asunto for valor in valores_oc):
                                 user = self.env["res.users"].sudo().search([
                                     ("login", "=", email_user),
                                     ("share", "=", False)

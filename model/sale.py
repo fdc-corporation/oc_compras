@@ -28,10 +28,10 @@ class SaleOrder (models.Model):
             if record.state_factura:
                 record.state_factura = ''
             if record.oc_id:
-                grupo = self.env["procurement.group"].search([("name", "=", record.name)])
+                grupo = self
                 if grupo:
-                    entregas = self.env["stock.picking"].search([("group_id", "=", grupo.id)])
-                    compras = self.env["purchase.order"].search([("origin", "=", record.name)])
+                    entregas = self.env["stock.picking"].search([("sale_id", "=", grupo.id)])
+                    compras = self.env["purchase.order"].search([("origin", "=", grupo.name)])
                     if entregas and not compras:
                         for entrega in entregas:
                             entrega.oc_id = record.oc_id.id
