@@ -405,7 +405,7 @@ class OrdenCompras(models.Model):
         group = self.env.ref(
             "oc_compras.group_user_facturacion", raise_if_not_found=False
         )
-        users = self.env["res.users"].search([("groups_id", "in", [group.id])])
+        users = self.env["res.users"].search([("group_ids", "in", [group.id])])
         partners = users.mapped("partner_id")
         for record in self:
             record.message_post(
