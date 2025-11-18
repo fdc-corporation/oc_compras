@@ -249,10 +249,14 @@ class AccountPaymentRegister(models.TransientModel):
     def action_create_payments(self):
         res = super(AccountPaymentRegister, self).action_create_payments()
         for record in self:
-            for move in record.line_ids.move_id:
+            for move in record.line_ids:
                 if move.state == "posted":
-                    print(f"Pagando factura: {move.name}")
-                    # move.factura_pagado_oc_update()
+                    if record.payment_difference_handling == 'reconcile' or not record.show_payment_difference:
+                        estado = self.env.ref("oc_compras.estado_factura_cancelada", raise_if_not_found=False)
+                        if move.move_id.oc_id and estado:
+                            move.move_id.oc_id.state = estado.id
+
+                        # move.factura_pagado_oc_update()
         return res
 
 
