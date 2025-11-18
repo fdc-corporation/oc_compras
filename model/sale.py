@@ -35,8 +35,8 @@ class SaleOrder (models.Model):
                     if entregas and not compras:
                         for entrega in entregas:
                             entrega.oc_id = record.oc_id.id
-                            # estado = self.env.ref('oc_compras.estado_entrega_atencion', raise_if_not_found=False)
-                            # record.oc_id.state = estado.id
+                            estado = self.env.ref('oc_compras.estado_entrega_atencion', raise_if_not_found=False)
+                            record.oc_id.state = estado.id
                     if compras:
                         for compra in compras:
                             compra.oc_id = record.oc_id.id  

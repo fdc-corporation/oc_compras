@@ -51,7 +51,15 @@ class InventarioOC(models.Model):
         return result
 
 
-
+    def action_cancel(self):
+        result = super(InventarioOC, self).action_cancel()
+        for record in self:
+            if record.oc_id:
+                estado = self.env.ref(
+                    "oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False
+                )
+                record.oc_id.state = estado.id
+        return result
 
 class FacturaOC(models.Model):
     _inherit = "account.move"
