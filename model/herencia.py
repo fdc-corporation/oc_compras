@@ -56,9 +56,10 @@ class InventarioOC(models.Model):
         for record in self:
             if record.oc_id:
                 estado = self.env.ref(
-                    "oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False
+                    "oc_compras.estado_entrega_atencion", raise_if_not_found=False
                 )
                 record.oc_id.state = estado.id
+                record.oc_id = False
         return result
 
 class FacturaOC(models.Model):
