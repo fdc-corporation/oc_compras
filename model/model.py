@@ -539,7 +539,7 @@ class OrdenCompras(models.Model):
                         record.state = estado.id
 
                         entrega_out = self.env["stock.picking"].search(
-                            [
+                            [ 
                                 ("sale_id", "=", grupo.id),
                                 ("picking_type_id.code", "=", "outgoing"),
                                 ("state", "=", "done"),
