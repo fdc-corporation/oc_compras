@@ -242,7 +242,8 @@ class AccountPayment(models.Model):
                 # move.factura_pagado_oc_update()
         return res
 
-
+import logging
+_logger = logging.getLogger(__name__)
 class AccountPaymentRegister(models.TransientModel):
     _inherit = "account.payment.register"
 
@@ -251,14 +252,16 @@ class AccountPaymentRegister(models.TransientModel):
         for record in self:
             for move in record.line_ids:
                 print(f"Factura {record.payment_difference_handling} reconciliada con pago {record.show_payment_difference}")
+                _logger.info(f"Factura {record.payment_difference_handling} reconciliada con pago {record.show_payment_difference}")
                 if record.payment_difference_handling == 'reconcile' or not record.show_payment_difference:
                     estado = self.env.ref("oc_compras.estado_factura_cancelada", raise_if_not_found=False)
                     print("Estado obtenido:")
                     print(estado)
-
+                    _logger.info(f"Estado obtenido: {estado}")
                     if move.move_id.oc_id and estado:
                         print("Actualizando estado de la OC asociada a la factura...")
                         print(move.move_id.oc_id.name)
+                        _logger.info(f"Actualizando estado de la OC asociada a la factura... {move.move_id.oc_id.name}")
                         move.move_id.oc_id.state = estado.id
 
                         # move.factura_pagado_oc_update()
