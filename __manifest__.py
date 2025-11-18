@@ -17,9 +17,9 @@
         'website',
         'pmant',
         'maintenance',
-        'custom_fpc_compras'
-        'l10n_pe_edi_stock'
-        'l10n_pe_edi'
+        'custom_fpc_compras',
+        'l10n_pe_edi_stock',
+        'l10n_pe_edi',
     ],
     'data': [
         'security/security.xml',
