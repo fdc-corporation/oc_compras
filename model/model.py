@@ -509,7 +509,7 @@ class OrdenCompras(models.Model):
                         else:
                             recepcion = self.env["stock.picking"].search(
                                 [
-                                    ("group_id", "=", grupo.id),
+                                    ("origin", "=", grupo.id),
                                     ("picking_type_id.code", "=", "incoming"),
                                     ("state", "=", "done"),
                                     ("return_ids", "=", False),
@@ -540,7 +540,7 @@ class OrdenCompras(models.Model):
 
                         entrega_out = self.env["stock.picking"].search(
                             [
-                                ("group_id", "=", grupo.id),
+                                ("sale_id", "=", grupo.id),
                                 ("picking_type_id.code", "=", "outgoing"),
                                 ("state", "=", "done"),
                                 ("return_ids", "=", False),
@@ -548,7 +548,7 @@ class OrdenCompras(models.Model):
                             limit=1,
                         )
 
-                        if entrega_out and entrega_out.pe_guide_number != "/":
+                        if entrega_out and entrega_out.l10n_latam_document_number:
                             estado = self.env.ref(
                                 "oc_compras.estado_guia_generado",
                                 raise_if_not_found=False,
