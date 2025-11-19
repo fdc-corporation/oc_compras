@@ -102,7 +102,10 @@ class FacturaOC(models.Model):
                     sale.state_factura = "facutrado_parcial"
                 else:
                     sale.state_factura = "facturado"
-
+                ot = self.env['maintenance.request'].search([
+                    ("tarea", "=", sale.ots.id)
+                ], limit=1)
+                ot.factura = self.id
                 sale.fecha_factura = fields.Datetime.now()
 
                 # Mantener tu lógica de OC
@@ -153,7 +156,10 @@ class FacturaOC(models.Model):
                 else:
                     sale.state_factura = "facturado"
                     sale.fecha_factura = fields.Datetime.now()
-
+                ot = self.env['maintenance.request'].search([
+                    ("tarea", "=", sale.ots.id)
+                ], limit=1)
+                ot.factura = False
                 # Restaurar estado de la OC
                 state_oc = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
                 if state_oc and sale.oc_id:
@@ -192,7 +198,10 @@ class AccountReverse(models.TransientModel):
                 else:
                     sale.state_factura = "facturado"
                     sale.fecha_factura = fields.Datetime.now()
-
+                ot = self.env['maintenance.request'].search([
+                    ("tarea", "=", sale.ots.id)
+                ], limit=1)
+                ot.factura = False
                 # Restaurar estado de la OC
                 state_oc = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
                 if state_oc and sale.oc_id:
@@ -227,7 +236,10 @@ class AccountReverse(models.TransientModel):
                 else:
                     sale.state_factura = "facturado"
                     sale.fecha_factura = fields.Datetime.now()
-
+                ot = self.env['maintenance.request'].search([
+                    ("tarea", "=", sale.ots.id)
+                ], limit=1)
+                ot.factura = False
                 # Restaurar estado de la OC
                 state_oc = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
                 if state_oc and sale.oc_id:
