@@ -244,27 +244,37 @@ class AccountPayment(models.Model):
 
 import logging
 _logger = logging.getLogger(__name__)
+
 class AccountPaymentRegister(models.TransientModel):
     _inherit = "account.payment.register"
 
     def action_create_payments(self):
         res = super(AccountPaymentRegister, self).action_create_payments()
-        for record in self:
-            for move in record.line_ids:
-                print(f"Factura {record.payment_difference_handling} reconciliada con pago {record.show_payment_difference}")
-                _logger.info(f"Factura {record.payment_difference_handling} reconciliada con pago {record.show_payment_difference}")
-                if record.payment_difference_handling == 'reconcile' or not record.show_payment_difference:
-                    estado = self.env.ref("oc_compras.estado_factura_cancelada", raise_if_not_found=False)
-                    print("Estado obtenido:")
-                    print(estado)
-                    _logger.info(f"Estado obtenido: {estado}")
-                    if move.move_id.oc_id and estado:
-                        print("Actualizando estado de la OC asociada a la factura...")
-                        print(move.move_id.oc_id.name)
-                        _logger.info(f"Actualizando estado de la OC asociada a la factura... {move.move_id.oc_id.name}")
-                        move.move_id.oc_id.state = estado.id
 
-                        # move.factura_pagado_oc_update()
+        for record in self:
+            for line in record.line_ids:
+                _logger.info(f"Procesando línea: {line.id}")
+
+                # Condición para actualizar el estado
+                if record.payment_difference_handling == 'reconcile' or not record.show_payment_difference:
+                    # Buscar el estado de OC (estado_factura_cancelada)
+                    estado = self.env.ref("oc_compras.estado_factura_cancelada", raise_if_not_found=False)
+
+                    _logger.info(f"Estado de OC obtenido: {estado}")
+
+                    # Validación y actualización
+                    try:
+                        move = line.move_id
+                        if move and move.oc_id and estado:
+                            oc = move.oc_id
+                            _logger.info(f"Actualizando estado de la OC: {oc.name} (ID: {oc.id}) → {estado.name}")
+                            oc.state = estado.id
+                        else:
+                            _logger.warning(f"No se encontró OC o estado válido para la factura {move.name if move else 'N/A'}")
+                    except Exception as e:
+                        _logger.error(f"❌ Error actualizando estado de OC asociada: {str(e)}")
+
+        _logger.info("✅ Pagos creados y estados de OC actualizados (si correspondía).")
         return res
 
 
