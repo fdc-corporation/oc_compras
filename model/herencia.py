@@ -343,19 +343,15 @@ class OTS(models.Model):
     oc_cliente = fields.Char(related="order_compra.oc", store=True)
     not_oc = fields.Boolean(string="No tiene OC?")
 
-
+    @api.model
     def create(self, vals):
-        res = super(OTS, self).create(vals)
-        for record in res:
-            if record.tarea and record.tarea.oc_id:
-                record.tarea.oc_id.ot_servicio = record.id
-        return res
+        record = super().create(vals)
+        record._post_create_actions()
+        return record
 
-    # def write(self, vals):
-    #     res = super(OTS, self).write(vals)
-    #     if "tarea" in vals:
-    #         self._compute_order_compra()
-    #     return res
+    def _post_create_actions(self):
+        if self.tarea and self.tarea.oc_id:
+            self.tarea.oc_id.ot_servicio = self.id
 
     # OBTENER LA OC DE LA TAREA PARA EL MODULO DE OC_COMPRAS
     @api.onchange("tarea", "order_compra")
