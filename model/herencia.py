@@ -351,7 +351,11 @@ class OTS(models.Model):
 
     def _post_create_actions(self):
         if self.tarea and self.tarea.oc_id:
-            self.tarea.oc_id.ot_servicio = self.id
+            # asignar la OC a la OT (correcto)
+            self.order_compra = self.tarea.oc_id.id  
+
+            # añadir la OT en el One2many ot_servicio de la OC (correcto)
+            self.tarea.oc_id.ot_servicio = [(4, self.id)]
 
     # OBTENER LA OC DE LA TAREA PARA EL MODULO DE OC_COMPRAS
     @api.onchange("tarea", "order_compra")
