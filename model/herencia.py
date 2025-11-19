@@ -338,7 +338,7 @@ class OTS(models.Model):
     _inherit = "maintenance.request"
 
     order_compra = fields.Many2one(
-        "oc.compras", string="Orden de compra", ondelete="set null"
+        "oc.compras", string="Orden de compra", ondelete="set null", default=lambda self: self.tarea.oc_id.id if self.tarea and self.tarea.oc_id else False 
     )
     oc_cliente = fields.Char(related="order_compra.oc", store=True)
     not_oc = fields.Boolean(string="No tiene OC?")
@@ -346,15 +346,16 @@ class OTS(models.Model):
 
     def create(self, vals):
         res = super(OTS, self).create(vals)
-        if "order_compra" in vals:
-            self._compute_order_compra()
+        for record in res:
+            if record.tarea and record.tarea.oc_id:
+                record.tarea.oc_id.ot_servicio = record.id
         return res
 
-    def write(self, vals):
-        res = super(OTS, self).write(vals)
-        if "tarea" in vals:
-            self._compute_order_compra()
-        return res
+    # def write(self, vals):
+    #     res = super(OTS, self).write(vals)
+    #     if "tarea" in vals:
+    #         self._compute_order_compra()
+    #     return res
 
     # OBTENER LA OC DE LA TAREA PARA EL MODULO DE OC_COMPRAS
     @api.onchange("tarea", "order_compra")
@@ -362,8 +363,8 @@ class OTS(models.Model):
         for record in self:
             if record.tarea and record.tarea.oc_id:
                 record.order_compra = record.tarea.oc_id.id
-                if record.tarea.oc_id:
-                    record.tarea.oc_id.ot_servicio = self.id
+                # if record.tarea.oc_id:
+                #     record.tarea.oc_id.ot_servicio = self.id
             else:
                 record.order_compra = False
 
