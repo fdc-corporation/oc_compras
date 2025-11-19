@@ -343,6 +343,13 @@ class OTS(models.Model):
     oc_cliente = fields.Char(related="order_compra.oc", store=True)
     not_oc = fields.Boolean(string="No tiene OC?")
 
+
+    def create(self, vals):
+        res = super(OTS, self).create(vals)
+        if "order_compra" in vals:
+            self._compute_order_compra()
+        return res
+
     def write(self, vals):
         res = super(OTS, self).write(vals)
         if "tarea" in vals:
@@ -377,16 +384,16 @@ class Tarea(models.Model):
 
     oc_id = fields.Many2one("oc.compras", string="OC")
 
-    def create_ot(self):
-        res = super().create_ot()
+    # def create_ot(self):
+    #     res = super().create_ot()
 
-        ot = self.env["maintenance.request"].browse(res.get("res_id"))
+    #     ot = self.env["maintenance.request"].browse(res.get("res_id"))
 
-        if self.oc_id:
-            ot.order_compra = self.oc_id.id  # <-- este campo debe existir en maintenance.request
-            estado = self.env.ref('oc_compras.estado_servicios', raise_if_not_found=False)
-            ot.order_compra.state = estado.id
-        return res
+    #     if self.oc_id:
+    #         ot.order_compra = self.oc_id.id  # <-- este campo debe existir en maintenance.request
+    #         estado = self.env.ref('oc_compras.estado_servicios', raise_if_not_found=False)
+    #         ot.order_compra.state = estado.id
+    #     return res
 
 
 
