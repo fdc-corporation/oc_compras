@@ -120,7 +120,6 @@ class OrdenCompras(models.Model):
                 if estado_guia:
                     record.state = estado_guia.id
                     record.write_ruta_estado()
-                    record.message_post(body=f"📝 Estado actualizado a: {estado_guia.name}")
 
                 # Si hay tareas de mantenimiento, cambiar a estado de servicios
                 if record.tarea_mant:
@@ -128,7 +127,6 @@ class OrdenCompras(models.Model):
                     if estado_servicios:
                         record.state = estado_servicios.id
                         record.write_ruta_estado()
-                        record.message_post(body=f"📝 Estado actualizado a: {estado_servicios.name}")
 
 
     def _get_vaue_sale_state (self):
