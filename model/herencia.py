@@ -256,7 +256,7 @@ class AccountPaymentRegister(models.TransientModel):
                 _logger.info(f"Procesando línea: {line.id}")
                 _logger.info(f"Detalles de la línea: Move ID = {record.payment_difference_handling}, OC ID = {record.show_payment_difference}")
                 # Condición para actualizar el estado
-                if record.payment_difference_handling == 'reconcile' or record.show_payment_difference == False:
+                if record.payment_difference_handling == 'reconcile' or record.amount == record.source_amount_currency:
                     # Buscar el estado de OC (estado_factura_cancelada)
                     estado = self.env.ref("oc_compras.estado_factura_cancelada", raise_if_not_found=False)
 
