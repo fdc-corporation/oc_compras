@@ -115,13 +115,20 @@ class OrdenCompras(models.Model):
     def guia_firmada_onchange(self):
         for record in self:
             if record.guia_firmada_ids:
-                estado = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)   
-                record.state = estado.id
-                if record.tarea_mant :
-                    estado_ot = self.env.ref(
-                        "oc_compras.estado_servicios", raise_if_not_found=False
-                    )
-                    record.state = estado_ot.id
+                # Estado de Guía Firmada
+                estado_guia = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
+                if estado_guia:
+                    record.state = estado_guia.id
+                    record.write_ruta_estado()
+                    record.message_post(body=f"📝 Estado actualizado a: {estado_guia.name}")
+
+                # Si hay tareas de mantenimiento, cambiar a estado de servicios
+                if record.tarea_mant:
+                    estado_servicios = self.env.ref("oc_compras.estado_servicios", raise_if_not_found=False)
+                    if estado_servicios:
+                        record.state = estado_servicios.id
+                        record.write_ruta_estado()
+                        record.message_post(body=f"📝 Estado actualizado a: {estado_servicios.name}")
 
 
     def _get_vaue_sale_state (self):
