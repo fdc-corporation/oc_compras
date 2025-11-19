@@ -117,6 +117,11 @@ class OrdenCompras(models.Model):
             if record.guia_firmada_ids:
                 estado = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)   
                 record.state = estado.id
+                if record.tarea_mant :
+                    estado_ot = self.env.ref(
+                        "oc_compras.estado_servicios", raise_if_not_found=False
+                    )
+                    record.state = estado_ot.id
 
 
     def _get_vaue_sale_state (self):

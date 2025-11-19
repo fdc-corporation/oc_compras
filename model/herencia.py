@@ -36,7 +36,11 @@ class InventarioOC(models.Model):
                     "oc_compras.estado_guia_generado", raise_if_not_found=False
                 )
                 record.oc_id.state = estado.id
-
+                if record.oc_id.tarea_mant :
+                    estado_ot = self.env.ref(
+                        "oc_compras.estado_servicios", raise_if_not_found=False
+                    )
+                    record.oc_id.state = estado_ot.id
         return result
 
     def button_validate (self):
