@@ -111,6 +111,14 @@ class OrdenCompras(models.Model):
     observaciones = fields.Text(string="Observaciones")
     sale_is_draft = fields.Boolean(string="Las cotizacion estan en borrador?", compute="_get_vaue_sale_state")
 
+    @api.onchange("guia_firmada_ids")
+    def guia_firmada_onchange(self):
+        for record in self:
+            if record.guia_firmada_ids:
+                estado = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)   
+                record.state = estado.id
+
+
     def _get_vaue_sale_state (self):
         self.ensure_one()
         if self.cotizacion_id:
