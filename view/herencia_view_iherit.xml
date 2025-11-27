@@ -66,11 +66,18 @@
         <field name="model">maintenance.request</field>
         <field name="inherit_id" ref="maintenance.hr_equipment_request_view_kanban"/>
         <field name="arch" type="xml">
-            <!-- <xpath expr="//kanban" position="inside">
-                <field name="oc_cliente" />
-            </xpath> -->
-            <xpath expr="//field[@name='schedule_date']" position="before">
-               <div>OC: <field name="oc_cliente" /></div>
+            <xpath expr="//div[contains(@class, 'ubicacion')]" position="after">
+                <div class="oc_cliente d-flex align-items-center mb-1">
+                    <span class="me-1">
+                        <i class="fa fa-credit-card-alt" style="font-size:12px;"/>
+                    </span>
+                    <t t-if="record.oc_cliente.raw_value">
+                        <field name="oc_cliente"/>
+                    </t>
+                    <t t-else="">
+                        <span>Sin oc del cliente</span>
+                    </t>
+                </div>
             </xpath>
         </field>
     </record>
@@ -97,7 +104,20 @@
         <field name="inherit_id" ref="pmant.Tareav_kanban_view"/>
         <field name="arch" type="xml">
             <xpath expr="//kanban" position="inside">
-                <field name="oc_id"></field>
+                <field name="oc_id"/>
+            </xpath>
+            <xpath expr="//div[contains(@class, 'tipo_servicio')]" position="after">
+                <div class="oc_cliente d-flex align-items-center mb-1">
+                    <span class="me-1">
+                        <i class="fa fa-credit-card-alt" style="font-size:12px;"/>
+                    </span>
+                    <t t-if="record.oc_id.raw_value">
+                        <field name="oc_id"/>
+                    </t>
+                    <t t-else="">
+                        <span>Sin oc del cliente</span>
+                    </t>
+                </div>
             </xpath>
         </field>
     </record>
