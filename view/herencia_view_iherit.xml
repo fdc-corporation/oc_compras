@@ -61,12 +61,12 @@
 		</field>
 	</record>
 
-    <record id="pmant_kanban_oc_inherit_module_name" model="ir.ui.view">
+    <!-- <record id="pmant_kanban_oc_inherit_module_name" model="ir.ui.view">
         <field name="name">oc.compras.view.form.inherit</field>
         <field name="model">maintenance.request</field>
         <field name="inherit_id" ref="maintenance.hr_equipment_request_view_kanban"/>
         <field name="arch" type="xml">
-            <!-- <xpath expr="//div[contains(@class, 'ubicacion')]" position="after">
+            <xpath expr="//div[contains(@class, 'ubicacion')]" position="after">
                 <div class="oc_cliente d-flex align-items-center mb-1">
                     <span class="me-1">
                         <i class="fa fa-credit-card-alt" style="font-size:12px;"/>
@@ -78,9 +78,9 @@
                         <span>Sin oc del cliente</span>
                     </t>
                 </div>
-            </xpath> -->
+            </xpath>
         </field>
-    </record>
+    </record> -->
 
     <record id="ots_add_oc_compras" model="ir.ui.view">
 		<field name="name">ots.view</field>
