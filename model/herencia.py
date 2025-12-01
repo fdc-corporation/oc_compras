@@ -64,11 +64,11 @@ class FacturaOC(models.Model):
 
 
 
-    @api.constrains("invoice_origin")
-    def _validation_create(self):
-        for record in self:
-            if not record.invoice_origin:
-                raise UserError(_("No se pede crear facturas sin una venta o compra"))
+    # @api.constrains("invoice_origin")
+    # def _validation_create(self):
+    #     for record in self:
+    #         if not record.invoice_origin:
+    #             raise UserError(_("No se pede crear facturas sin una venta o compra"))
     
 
     def action_post(self):
