@@ -478,7 +478,7 @@ class OrdenCompras(models.Model):
             coti.ots.oc_id = record.id
 
             if orden_trabajo:
-                orden_trabajo.order_compra = record.id
+                record.orden_trabajo = orden_trabajo
                 estado = self.env.ref(
                     "oc_compras.estado_servicios", raise_if_not_found=False
                 )
