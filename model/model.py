@@ -478,13 +478,14 @@ class OrdenCompras(models.Model):
             coti.ots.oc_id = record.id
 
             if orden_trabajo:
-                record.orden_trabajo = orden_trabajo
+                orden_trabajo.order_compra = record.id
                 estado = self.env.ref(
                     "oc_compras.estado_servicios", raise_if_not_found=False
                 )
                 record.state = estado.id
                 if factura:
-                    record.orden_trabajo.stage_id = state_fac.id
+                    orden_trabajo.stage_id = state_fac.id
+                    orden_trabajo.factura = factura.id
 
     def action_update_data(self):
         for record in self:
