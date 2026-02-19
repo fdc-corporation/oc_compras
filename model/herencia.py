@@ -1,61 +1,6 @@
 from odoo import _, models, fields, api
 from datetime import datetime
 from odoo.exceptions import UserError, ValidationError
-
-
-
-class InventarioOC(models.Model):
-    _inherit = "stock.picking"
-
-    oc_id = fields.Many2one("oc.compras", string="OC")
-
-    def action_generate_eguide(self):
-        result = super(InventarioOC, self).action_generate_eguide()
-
-        for record in self:
-            if record.oc_id:
-                estado = self.env.ref(
-                    "oc_compras.estado_guia_generado", raise_if_not_found=False
-                )
-                record.oc_id.state = estado.id
-            else:
-                sale = self.env["sale.order"].search(
-                    [("name", "=", record.group_id.name), ("state", "=", "sale")]
-                )
-                if sale and sale.oc_id:
-                    estado = self.env.ref(
-                        "oc_compras.estado_guia_generado", raise_if_not_found=False
-                    )
-                    record.oc_id.state = estado.id
-        return result
-
-    def action_send_delivery_guide(self):
-        result = super(InventarioOC, self).action_send_delivery_guide()
-
-        for record in self:
-            if record.oc_id:
-                estado = self.env.ref(
-                    "oc_compras.estado_guia_generado", raise_if_not_found=False
-                )
-                record.oc_id.state = estado.id
-
-        return result
-
-    def button_validate (self):
-        result = super(InventarioOC, self).button_validate()
-        for record in self:
-            if record.picking_type_id.code == "incoming" :
-                sale = self.env["sale.order"].search(
-                    [("name", "=", record.group_id.name)]
-                )
-                if sale:
-                    record.oc_id = sale.oc_id.id
-                    estado = self.env.ref('oc_compras.estado_proveedor_solicitud', raise_if_not_found=False)
-                    sale.oc_id.state = estado.id
-        return result
-
-
-
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -193,6 +138,7 @@ class AccountReverse(models.TransientModel):
 
         return result
 
+
 class AccountPayment(models.Model):
     _inherit = "account.payment"
 
@@ -223,6 +169,7 @@ class ComprasOC(models.Model):
 
     oc_id = fields.Many2one("oc.compras", string="OC")
     peso = fields.Float(string="Peso Total")
+
 
     def button_confirm(self):
         res = super(ComprasOC, self).button_confirm()
