@@ -1,6 +1,6 @@
 from odoo import _, models, fields, api
 from datetime import datetime
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 
@@ -56,74 +56,141 @@ class InventarioOC(models.Model):
 
 
 
+from odoo import models, fields, api, _
+from odoo.exceptions import ValidationError
+
 
 class FacturaOC(models.Model):
     _inherit = "account.move"
 
     oc_id = fields.Many2one("oc.compras", string="OC")
 
+    # ---------------------------------------------------------
+    # VALIDACIÓN
+    # ---------------------------------------------------------
+    @api.constrains('invoice_origin')
+    def _check_invoice_origin(self):
+        for record in self:
+            if record.move_type in ['out_invoice', 'in_invoice'] and not record.invoice_origin:
+                raise ValidationError(_("No se puede crear una factura sin una orden de venta o compra."))
 
+    # ---------------------------------------------------------
+    # MÉTODO AUXILIAR CENTRALIZADO
+    # ---------------------------------------------------------
+    def _actualizar_estado_factura_venta(self, sale):
+        """Recalcula correctamente el estado de facturación"""
+
+        # Solo facturas publicadas
+        facturas = sale.invoice_ids.filtered(
+            lambda m: m.state == 'posted'
+        )
+
+        # Separar facturas y notas de crédito
+        facturas_cliente = facturas.filtered(lambda m: m.move_type == 'out_invoice')
+        notas_credito = facturas.filtered(lambda m: m.move_type == 'out_refund')
+
+        total_facturado = sum(facturas_cliente.mapped('amount_total'))
+        total_credito = sum(notas_credito.mapped('amount_total'))
+
+        monto_real = total_facturado - total_credito
+
+        if not facturas_cliente:
+            sale.state_factura = False
+            sale.fecha_factura = False
+        elif monto_real < sale.amount_total:
+            sale.state_factura = "facturado_parcial"
+            sale.fecha_factura = fields.Datetime.now()
+        else:
+            sale.state_factura = "facturado"
+            sale.fecha_factura = fields.Datetime.now()
+
+    # ---------------------------------------------------------
+    # POSTEAR FACTURA
+    # ---------------------------------------------------------
     def action_post(self):
-        result = super(FacturaOC, self).action_post()
+        result = super().action_post()
 
         for record in self:
-            name_orden = record.invoice_origin or ""
-            ordenes = [n.strip() for n in name_orden.split(",")] if "," in name_orden else [name_orden.strip()]
-            sales = self.env['sale.order'].search([('name', 'in', ordenes)])
+            if record.move_type != 'out_invoice':
+                continue
+
+            sales = record.invoice_line_ids.mapped('sale_line_ids.order_id')
 
             for sale in sales:
-                sale.state_factura = "facturado"
+                self._actualizar_estado_factura_venta(sale)
+
+                # ---------------- OC ----------------
                 if sale.oc_id:
                     record.oc_id = sale.oc_id.id
                     estado = self.env.ref('oc_compras.estado_facturado', raise_if_not_found=False)
                     if estado:
                         sale.oc_id.state = estado.id
 
+                # ---------------- OT ----------------
                 if sale.ots:
                     orden_trabajo = self.env['maintenance.request'].search([
                         ("tarea", "=", sale.ots.id)
                     ], limit=1)
+
                     if orden_trabajo:
                         state_fac = self.env['maintenance.stage'].search([
                             ("is_finalizado", "=", True)
                         ], limit=1)
+
                         if state_fac:
                             orden_trabajo.stage_id = state_fac.id
 
         return result
 
+    # ---------------------------------------------------------
+    # ANULAR FACTURA
+    # ---------------------------------------------------------
+    def button_cancel(self):
+        result = super().button_cancel()
 
+        for record in self:
+            sales = record.invoice_line_ids.mapped('sale_line_ids.order_id')
+
+            for sale in sales:
+                self._actualizar_estado_factura_venta(sale)
+
+                # Restaurar estado OC
+                state_oc = self.env.ref(
+                    "oc_compras.estado_guia_firmada_registrada",
+                    raise_if_not_found=False
+                )
+                if state_oc and sale.oc_id:
+                    sale.oc_id.state = state_oc.id
+
+        return result
+
+
+# =============================================================
+# REVERSIÓN
+# =============================================================
 class AccountReverse(models.TransientModel):
     _inherit = "account.move.reversal"
 
-    def  refund_moves (self):
-        result = super(AccountReverse, self).refund_moves()
-        for record in self:
-            if record.move_ids:
-                for fac in record.move_ids:
-                    name_orden = fac.invoice_origin or ""
-                    ordenes = [n.strip() for n in name_orden.split(",")] if "," in name_orden else [name_orden.strip()]
-                    sales = self.env['sale.order'].search([('name', 'in', ordenes)])
-                    for sale in sales:
-                        sale.state_factura = ''
-                        state_oc = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
-                        if state_oc :
-                            sale.oc_id.state = state_oc.id
+    def refund_moves(self):
+        result = super().refund_moves()
+
+        for wizard in self:
+            for move in wizard.move_ids:
+                sales = move.invoice_line_ids.mapped('sale_line_ids.order_id')
+                for sale in sales:
+                    move._actualizar_estado_factura_venta(sale)
+
         return result
 
-    def  modify_moves (self):
-        result = super(AccountReverse, self).modify_moves()
-        for record in self:
-            if record.move_ids:
-                for fac in record.move_ids:
-                    name_orden = fac.invoice_origin or ""
-                    ordenes = [n.strip() for n in name_orden.split(",")] if "," in name_orden else [name_orden.strip()]
-                    sales = self.env['sale.order'].search([('name', 'in', ordenes)])
-                    for sale in sales:
-                        sale.state_factura = ''
-                        state_oc = self.env.ref("oc_compras.estado_guia_firmada_registrada", raise_if_not_found=False)
-                        if state_oc :
-                            sale.oc_id.state = state_oc.id
+    def modify_moves(self):
+        result = super().modify_moves()
+
+        for wizard in self:
+            for move in wizard.move_ids:
+                sales = move.invoice_line_ids.mapped('sale_line_ids.order_id')
+                for sale in sales:
+                    move._actualizar_estado_factura_venta(sale)
+
         return result
 
 class AccountPayment(models.Model):
@@ -155,6 +222,7 @@ class ComprasOC(models.Model):
     _inherit = "purchase.order"
 
     oc_id = fields.Many2one("oc.compras", string="OC")
+    peso = fields.Float(string="Peso Total")
 
     def button_confirm(self):
         res = super(ComprasOC, self).button_confirm()
