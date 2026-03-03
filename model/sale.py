@@ -9,7 +9,7 @@ class SaleOrder (models.Model):
 
     oc_id = fields.Many2one('oc.compras', string="OC", ondelete="set null",)
     # state = fields.Selection( selection_add=[("facturado", "Facturado")])
-    state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura", copy=False)
+    state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura", copy=False, compute="_compute_state_factura", store=True)
     fecha_factura = fields.Datetime(string="Fecha de facturacion")
 
     def create(self, vals):
@@ -20,7 +20,16 @@ class SaleOrder (models.Model):
         return res
 
 
-
+    def _compute_state_factura(self):
+        for record in self:
+            facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("move_type", "in", ["out_invoice"]), ("state", "=", "posted"), ("edi_state", "=", "sent")])
+            total_venta = record.amount_total
+            total_facturado = sum(factura.amount_total_in_currency_signed for factura in facturas)
+            if total_facturado >= total_venta:
+                record.state_factura = "facturado"
+            elif total_venta > total_facturado:
+                record.state_factura = "facutrado_parcial"
+            
 
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()
