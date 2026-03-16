@@ -57,6 +57,12 @@ class SaleOrder (models.Model):
                         record.ots.oc_id = record.oc_id.id
                         estado = self.env.ref('oc_compras.estado_servicios', raise_if_not_found=False)
                         record.oc_id.state = estado.id
+            else: 
+                entregas = self.env["stock.picking"].search([("sale_id", "=", self.id),("state", "!=", "cancel")])
+                if entregas:
+                    for entrega in entregas:
+                        if entrega.state != "done" and entrega.state != "cancel":
+                            entrega.state = "draft"
         return res
 
 
