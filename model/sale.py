@@ -1,40 +1,59 @@
-from odoo import _,models, fields, api
-from datetime import datetime
+from odoo import _, models, fields, api
 from odoo.exceptions import UserError
 import logging
 
 _logger = logging.getLogger(__name__)
 
-class SaleOrder (models.Model):
+
+class SaleOrder(models.Model):
     _inherit = 'sale.order'
     _description = 'Orden de Venta'
 
-    oc_id = fields.Many2one('oc.compras', string="OC", ondelete="set null",)
-    # state = fields.Selection( selection_add=[("facturado", "Facturado")])
-    state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura", copy=False, compute="_compute_state_factura", store=True)
-    fecha_factura = fields.Datetime(string="Fecha de facturacion")
+    oc_id = fields.Many2one(
+        'oc.compras',
+        string="OC",
+        ondelete="set null",
+    )
 
+    state_factura = fields.Selection(
+        [
+            ("facturado_parcial", "Facturado parcial"),
+            ("facturado", "Facturado"),
+        ],
+        string="Estado de factura",
+        copy=False,
+        compute="_compute_state_factura",
+        store=True,
+    )
 
-    def create(self, vals):
-        res = super(SaleOrder, self).create(vals)
-        if "state_factura" in vals:
-            res.state_factura = ''
+    fecha_factura = fields.Datetime(
+        string="Fecha de facturación"
+    )
 
-        return res
-
+    @api.depends("amount_total", "invoice_ids.amount_total", "invoice_ids.estado_sunat")
     def _compute_state_factura(self):
         for record in self:
-            facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("l10n_latam_document_type_id", "in", ["64"]), ("estado_sunat", "=", "05")])
-            _logger.info(f"Facturas relacionadas con la orden {record.name}: {[factura.name for factura in facturas]}")
+            # Filtrar facturas válidas (ajusta según tu lógica SUNAT)
+            facturas = record.invoice_ids.filtered(
+                lambda f: f.l10n_latam_document_type_id.id == 64 and f.estado_sunat == "05"
+            )
+
+            _logger.info(f"Facturas relacionadas con la orden {record.name}: {[f.name for f in facturas]}")
+
             total_venta = record.amount_total
-            _logger.info(f"Total de venta para la orden {record.name}: {total_venta}")
-            total_facturado = sum(factura.amount_total_in_currency_signed for factura in facturas)
-            _logger.info(f"Total facturado para la orden {record.name}: {total_facturado}")
-            if total_facturado >= total_venta:
+            total_facturado = sum(facturas.mapped("amount_total_in_currency_signed"))
+
+            _logger.info(f"Total venta: {total_venta}")
+            _logger.info(f"Total facturado: {total_facturado}")
+
+            if total_facturado >= total_venta and total_facturado > 0:
                 record.state_factura = "facturado"
 
-            elif total_venta > total_facturado:
-                record.state_factura = "facutrado_parcial"
+            elif total_facturado > 0:
+                record.state_factura = "facturado_parcial"
+
+            else:
+                record.state_factura = False
 
 
 
