@@ -23,7 +23,7 @@ class SaleOrder (models.Model):
     @api.model
     def _compute_state_factura(self):
         for record in self:
-            facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("move_type", "in", ["out_invoice"]), ("state", "=", "posted"), ("edi_state", "=", "sent")])
+            facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("l10n_latam_document_type_id", "in", ["invoice"]), ("estado_sunat", "=", "05")])
             total_venta = record.amount_total
             total_facturado = sum(factura.amount_total_in_currency_signed for factura in facturas)
             if total_facturado >= total_venta:
