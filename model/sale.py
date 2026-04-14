@@ -24,7 +24,7 @@ class SaleOrder (models.Model):
 
     def _compute_state_factura(self):
         for record in self:
-            facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("l10n_latam_document_type_id", "in", ["invoice"]), ("estado_sunat", "=", "05")])
+            facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("l10n_latam_document_type_id", "in", ["64"]), ("estado_sunat", "=", "05")])
             _logger.info(f"Facturas relacionadas con la orden {record.name}: {[factura.name for factura in facturas]}")
             total_venta = record.amount_total
             _logger.info(f"Total de venta para la orden {record.name}: {total_venta}")
@@ -32,7 +32,7 @@ class SaleOrder (models.Model):
             _logger.info(f"Total facturado para la orden {record.name}: {total_facturado}")
             if total_facturado >= total_venta:
                 record.state_factura = "facturado"
-                
+
             elif total_venta > total_facturado:
                 record.state_factura = "facutrado_parcial"
 
