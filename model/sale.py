@@ -20,7 +20,7 @@ class SaleOrder (models.Model):
         return res
 
     def copy(self, default=None):
-        default = dict(default)
+        default = dict(default or {})
         
         default.update(
             {
