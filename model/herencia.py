@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from odoo import _, models, fields, api
 from odoo.exceptions import UserError, ValidationError
 
@@ -12,8 +14,9 @@ class InventarioOC(models.Model):
 
     def _set_oc_state(self, xmlid):
         estado = self.env.ref(xmlid, raise_if_not_found=False)
-        if estado and self.oc_id:
-            self.oc_id.state = estado.id
+        for record in self:
+            if estado and record.oc_id:
+                record.oc_id.state = estado.id
 
     def action_generate_eguide(self):
         res = super().action_generate_eguide()
@@ -31,20 +34,24 @@ class InventarioOC(models.Model):
 
     def button_validate(self):
         res = super().button_validate()
+
         for record in self:
             if record.picking_type_id.code == "incoming" and record.group_id:
-                sale = self.env["sale.order"].search(
-                    [("name", "=", record.group_id.name)],
-                    limit=1
-                )
+                sale = self.env["sale.order"].search([
+                    ("name", "=", record.group_id.name)
+                ], limit=1)
+
                 if sale and sale.oc_id:
                     record.oc_id = sale.oc_id.id
+
                     estado = self.env.ref(
                         "oc_compras.estado_proveedor_solicitud",
                         raise_if_not_found=False
                     )
+
                     if estado:
                         sale.oc_id.state = estado.id
+
         return res
 
 
@@ -57,18 +64,25 @@ class FacturaOC(models.Model):
     oc_id = fields.Many2one("oc.compras", string="OC")
 
     # ---------------- VALIDACIÓN ----------------
-    @api.constrains('invoice_origin')
+    @api.constrains("invoice_origin")
     def _check_invoice_origin(self):
         for record in self:
-            if record.move_type in ['out_invoice', 'in_invoice'] and not record.invoice_origin:
+            if record.move_type in ["out_invoice", "in_invoice"] and not record.invoice_origin:
                 raise ValidationError(
                     _("No se puede crear una factura sin una orden de venta o compra.")
                 )
 
     # ---------------- MÉTODO CENTRAL ----------------
     def _update_sale_invoice_status(self, sale):
+        """
+        Actualiza el estado de facturación de la venta considerando:
+        - Facturas publicadas.
+        - Notas de crédito publicadas.
+        - Monto real facturado.
+        """
+        if not sale:
+            return
 
-        # Solo movimientos publicados
         posted_moves = sale.invoice_ids.filtered(lambda m: m.state == "posted")
 
         invoices = posted_moves.filtered(lambda m: m.move_type == "out_invoice")
@@ -89,9 +103,41 @@ class FacturaOC(models.Model):
             sale.state_factura = "facturado"
             sale.fecha_factura = fields.Datetime.now()
 
+    def _finalizar_ots_de_venta(self, sale):
+        """
+        Finaliza las órdenes de trabajo relacionadas a las tareas de la venta.
+        Corrección principal:
+        - sale.ots puede tener varias tareas.
+        - No se debe usar sale.ots.id.
+        - Se debe usar sale.ots.ids con operador 'in'.
+        """
+        if not sale or not sale.ots:
+            return
+
+        ordenes_trabajo = self.env["maintenance.request"].search([
+            ("tarea", "in", sale.ots.ids)
+        ])
+
+        if not ordenes_trabajo:
+            return
+
+        state_fac = self.env["maintenance.stage"].search([
+            ("is_finalizado", "=", True)
+        ], limit=1)
+
+        if state_fac:
+            ordenes_trabajo.write({
+                "stage_id": state_fac.id
+            })
+
     # ---------------- POST ----------------
     def action_post(self):
         res = super().action_post()
+
+        estado_facturado = self.env.ref(
+            "oc_compras.estado_facturado",
+            raise_if_not_found=False
+        )
 
         for move in self:
             if move.move_type != "out_invoice":
@@ -100,29 +146,15 @@ class FacturaOC(models.Model):
             sales = move.invoice_line_ids.mapped("sale_line_ids.order_id")
 
             for sale in sales:
-                self._update_sale_invoice_status(sale)
+                move._update_sale_invoice_status(sale)
 
                 if sale.oc_id:
                     move.oc_id = sale.oc_id.id
-                    estado = self.env.ref(
-                        "oc_compras.estado_facturado",
-                        raise_if_not_found=False
-                    )
-                    if estado:
-                        sale.oc_id.state = estado.id
 
-                if sale.ots:
-                    orden_trabajo = self.env["maintenance.request"].search(
-                        [("tarea", "=", sale.ots.id)],
-                        limit=1
-                    )
-                    if orden_trabajo:
-                        state_fac = self.env["maintenance.stage"].search(
-                            [("is_finalizado", "=", True)],
-                            limit=1
-                        )
-                        if state_fac:
-                            orden_trabajo.stage_id = state_fac.id
+                    if estado_facturado:
+                        sale.oc_id.state = estado_facturado.id
+
+                move._finalizar_ots_de_venta(sale)
 
         return res
 
@@ -130,15 +162,17 @@ class FacturaOC(models.Model):
     def button_cancel(self):
         res = super().button_cancel()
 
+        state_oc = self.env.ref(
+            "oc_compras.estado_guia_firmada_registrada",
+            raise_if_not_found=False
+        )
+
         for move in self:
             sales = move.invoice_line_ids.mapped("sale_line_ids.order_id")
-            for sale in sales:
-                self._update_sale_invoice_status(sale)
 
-                state_oc = self.env.ref(
-                    "oc_compras.estado_guia_firmada_registrada",
-                    raise_if_not_found=False
-                )
+            for sale in sales:
+                move._update_sale_invoice_status(sale)
+
                 if state_oc and sale.oc_id:
                     sale.oc_id.state = state_oc.id
 
@@ -153,20 +187,26 @@ class AccountReverse(models.TransientModel):
 
     def refund_moves(self):
         res = super().refund_moves()
+
         for wizard in self:
             for move in wizard.move_ids:
                 sales = move.invoice_line_ids.mapped("sale_line_ids.order_id")
+
                 for sale in sales:
                     move._update_sale_invoice_status(sale)
+
         return res
 
     def modify_moves(self):
         res = super().modify_moves()
+
         for wizard in self:
             for move in wizard.move_ids:
                 sales = move.invoice_line_ids.mapped("sale_line_ids.order_id")
+
                 for sale in sales:
                     move._update_sale_invoice_status(sale)
+
         return res
 
 
@@ -178,9 +218,11 @@ class AccountPayment(models.Model):
 
     def post(self):
         res = super().post()
+
         for payment in self:
             for move in payment.reconciled_invoice_ids:
                 print(f"Factura {move.name} reconciliada con pago {payment.name}")
+
         return res
 
 
@@ -189,10 +231,12 @@ class AccountPaymentRegister(models.TransientModel):
 
     def action_create_payments(self):
         res = super().action_create_payments()
+
         for record in self:
-            for move in record.line_ids.move_id:
+            for move in record.line_ids.mapped("move_id"):
                 if move.state == "posted":
                     print(f"Pagando factura: {move.name}")
+
         return res
 
 
@@ -208,27 +252,25 @@ class ComprasOC(models.Model):
     def button_confirm(self):
         res = super().button_confirm()
 
+        estado_solicitud_aceptada = self.env.ref(
+            "oc_compras.estado_solicitud_aceptada",
+            raise_if_not_found=False
+        )
+
         for record in self:
-            sale = self.env["sale.order"].search(
-                [("name", "=", record.origin)],
-                limit=1
-            )
+            sale = self.env["sale.order"].search([
+                ("name", "=", record.origin)
+            ], limit=1)
 
             if record.oc_id:
-                estado = self.env.ref(
-                    "oc_compras.estado_solicitud_aceptada",
-                    raise_if_not_found=False
-                )
-                if estado:
-                    record.oc_id.state = estado.id
+                if estado_solicitud_aceptada:
+                    record.oc_id.state = estado_solicitud_aceptada.id
+
             elif sale and sale.oc_id:
                 record.oc_id = sale.oc_id.id
-                estado = self.env.ref(
-                    "oc_compras.estado_solicitud_aceptada",
-                    raise_if_not_found=False
-                )
-                if estado:
-                    sale.oc_id.state = estado.id
+
+                if estado_solicitud_aceptada:
+                    sale.oc_id.state = estado_solicitud_aceptada.id
 
         return res
 
@@ -253,11 +295,18 @@ class OTS(models.Model):
 
     def _validacion_etapas(self):
         res = super()._validacion_etapas()
+
         for record in self:
-            if not record.not_oc and record.stage_id.sequence == 4 and not record.order_compra:
+            if (
+                not record.not_oc
+                and record.stage_id
+                and record.stage_id.sequence == 4
+                and not record.order_compra
+            ):
                 raise UserError(
                     _("Debe registrar la OC en el módulo de Orden de compras")
                 )
+
         return res
 
 
@@ -267,17 +316,26 @@ class Tarea(models.Model):
     oc_id = fields.Many2one("oc.compras", string="OC")
 
     def create_ot(self):
-        res = super().create_ot()
-        ot = self.env["maintenance.request"].browse(res.get("res_id"))
+        """
+        Este método normalmente se ejecuta desde una tarea individual.
+        Se usa ensure_one para evitar singleton ocultos si llega un recordset múltiple.
+        """
+        self.ensure_one()
 
-        if self.oc_id:
+        res = super().create_ot()
+        ot = self.env["maintenance.request"].browse(res.get("res_id")).exists()
+
+        if ot and self.oc_id:
             ot.order_compra = self.oc_id.id
+
             estado = self.env.ref(
                 "oc_compras.estado_servicios",
                 raise_if_not_found=False
             )
-            if estado:
+
+            if estado and ot.order_compra:
                 ot.order_compra.state = estado.id
+
         return res
 
 
