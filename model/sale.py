@@ -30,7 +30,7 @@ class SaleOrder (models.Model):
         )
         return super().copy(default)
     
-    @api.models
+    @api.model
     def _compute_state_factura(self):
         for record in self:
             facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("move_type", "in", ["out_invoice"]), ("state", "=", "posted"), ("edi_state", "=", "sent")])
