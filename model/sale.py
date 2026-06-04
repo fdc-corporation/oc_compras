@@ -36,12 +36,12 @@ class SaleOrder (models.Model):
             facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("move_type", "in", ["out_invoice"]), ("state", "=", "posted"), ("edi_state", "=", "sent")])
             if not facturas:
                 record.state_factura = False
-                return ''
+                continue
             total_venta = record.amount_total
             total_facturado = sum(factura.amount_total_in_currency_signed for factura in facturas)
-            if total_facturado >= total_venta:
+            if facturas and total_facturado >= total_venta:
                 record.state_factura = "facturado"
-            elif total_venta > total_facturado:
+            elif facturas and total_venta > total_facturado:
                 record.state_factura = "facutrado_parcial"
             
 
