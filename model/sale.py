@@ -45,8 +45,6 @@ class SaleOrder (models.Model):
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()
         for record in self:
-            if record.state_factura:
-                record.state_factura = ''
             if record.oc_id:
                 grupo = self
                 if grupo:
