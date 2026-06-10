@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <xpath expr="//form[1]/sheet[1]/group[@name='sale_header']/group[@name='order_details']/field[@name='date_order']" position="after">                
                 <field name="state_factura" widget="badge" />
+                <field name="state_factura_2" invisible="1" widget="badge" />
             </xpath>
         </field>
     </record>
