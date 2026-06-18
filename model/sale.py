@@ -101,5 +101,78 @@ class SaleOrderLine(models.Model):
                 return res
 
 
-# class SaleOrderLine(models.Model):
-#     _inherit 
+
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+
+    def write(self, vals):
+        # --- 1) Detectar eliminación de líneas ANTES de aplicar el write ---
+        deleted_lines_info = []
+        if "order_line" in vals:
+            for command in vals["order_line"]:
+                # command = (2, line_id, 0)  -> Odoo: "Delete"
+                if command[0] == 2:
+                    line_id = command[1]
+                    line = self.env["sale.order.line"].browse(line_id)
+                    if line.exists():
+                        deleted_lines_info.append({
+                            "order": line.order_id,
+                            "product_name": line.product_id.display_name or line.name or _("Sin producto"),
+                            "internal_ref": line.product_id.default_code or _("Sin código"),
+                            "qty": line.product_uom_qty,
+                            "uom": line.product_uom.name if line.product_uom else "",
+                            "price_unit": line.price_unit,
+                            "currency": line.order_id.currency_id.symbol or "",
+                        })
+
+        # --- 2) Detectar cambio de cliente ANTES de aplicar el write ---
+        partner_change_info = []
+        if "partner_id" in vals:
+            for order in self:
+                if order.partner_id.id != vals["partner_id"]:
+                    new_partner = self.env["res.partner"].browse(vals["partner_id"])
+                    partner_change_info.append({
+                        "order": order,
+                        "old_partner": order.partner_id,
+                        "new_partner": new_partner,
+                    })
+
+        # --- 3) Ejecutar el write real ---
+        result = super(SaleOrder, self).write(vals)
+
+        # --- 4) Postear mensajes en el chatter ---
+        user_name = self.env.user.name
+
+        for info in deleted_lines_info:
+            body = _(
+                "Linea de producto eliminada\n"
+                "Producto: %(product)s\n"
+                "Codigo interno: %(code)s\n"
+                "Cantidad: %(qty)s %(uom)s\n"
+                "Precio unitario: %(price)s %(currency)s\n"
+                "Eliminado por: %(user)s"
+            ) % {
+                "product": info["product_name"],
+                "code": info["internal_ref"],
+                "qty": info["qty"],
+                "uom": info["uom"],
+                "price": "%.2f" % info["price_unit"],
+                "currency": info["currency"],
+                "user": user_name,
+            }
+            info["order"].message_post(body=body, subtype_xmlid="mail.mt_note")
+
+        for info in partner_change_info:
+            body = _(
+                "Cliente modificado en la cotizacion\n"
+                "Cliente anterior: %(old)s\n"
+                "Cliente nuevo: %(new)s\n"
+                "Modificado por: %(user)s"
+            ) % {
+                "old": info["old_partner"].display_name or _("Sin cliente"),
+                "new": info["new_partner"].display_name or _("Sin cliente"),
+                "user": user_name,
+            }
+            info["order"].message_post(body=body, subtype_xmlid="mail.mt_note")
+
+        return result
