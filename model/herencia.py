@@ -2,12 +2,56 @@ from odoo import _, models, fields, api
 from datetime import datetime
 from odoo.exceptions import UserError, ValidationError
 
+from odoo.http import request
+import qrcode
+import base64
+from io import BytesIO
 
+class StockPickingGuiaImagen(models.Model):
+    _name = "stock.picking.guia.imagen"
+    _description = "Imagen de guía firmada"
+    _order = "create_date desc"
 
+    picking_id = fields.Many2one(
+        "stock.picking",
+        string="Guía",
+        required=True,
+        ondelete="cascade",
+    )
+    imagen = fields.Binary(string="Imagen", required=True)
+    nombre = fields.Char(string="Nombre de archivo")
+    create_date = fields.Datetime(string="Fecha de subida", readonly=True)
 class InventarioOC(models.Model):
     _inherit = "stock.picking"
 
     oc_id = fields.Many2one("oc.compras", string="OC")
+    fecha_registro = fields.Date(string="Fecha de registro")
+    qr_guia = fields.Binary(string="QR de la guía por firmar")
+    guia_firmada_ids = fields.One2many(
+        "stock.picking.guia.imagen",
+        "picking_id",
+        string="Imágenes de guía firmada",
+    )
+
+    def generar_qr(self):
+        for record in self:
+            base_url = self.env["ir.config_parameter"].sudo().get_param("web.base.url")
+            url = f"{base_url}/control/guias/add/{record.id}"
+            if record.state == "done":
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,
+                    border=4,
+                )
+                qr.add_data(url)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color="black", back_color="white")
+                buffer = BytesIO()
+                img.save(buffer, format="PNG")
+                record.qr_guia = base64.b64encode(buffer.getvalue()).decode("utf-8")
+            else:
+                record.qr_guia = False
 
     def action_generate_eguide(self):
         result = super(InventarioOC, self).action_generate_eguide()
@@ -46,6 +90,7 @@ class InventarioOC(models.Model):
     def button_validate (self):
         result = super(InventarioOC, self).button_validate()
         for record in self:
+            self.generar_qr()
             if record.picking_type_id.code == "incoming" :
                 sale = self.sale_id
                 if sale:

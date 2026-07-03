@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="template_guia_publica" name="Subir Guía Firmada">
+		<t t-call="web.layout">
+			<t t-set="head">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+				<style>
+					* { box-sizing: border-box; margin: 0; padding: 0; }
+					body { font-family: 'Segoe UI', sans-serif; background: #f4f6f9; color: #333; }
+					
+					.gf-container {
+					max-width: 600px;
+					margin: 24px auto;
+					padding: 0 16px 40px;
+					}
+					
+					/* ── Header ── */
+					.gf-header {
+					background: #1a73e8;
+					color: white;
+					border-radius: 12px 12px 0 0;
+					padding: 20px;
+					text-align: center;
+					}
+					.gf-header h1 { font-size: 1.2rem; font-weight: 700; }
+					.gf-header p  { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
+					
+					/* ── Card info ── */
+					.gf-card {
+					background: white;
+					border-radius: 0 0 12px 12px;
+					padding: 20px;
+					box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+					margin-bottom: 16px;
+					}
+					
+					.gf-info-grid {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: 12px;
+					margin-bottom: 16px;
+					}
+					.gf-info-item label {
+					font-size: 0.72rem;
+					text-transform: uppercase;
+					color: #888;
+					letter-spacing: 0.5px;
+					}
+					.gf-info-item p {
+					font-size: 0.95rem;
+					font-weight: 600;
+					color: #222;
+					margin-top: 2px;
+					}
+					
+					.gf-badge {
+					display: inline-block;
+					padding: 3px 10px;
+					border-radius: 20px;
+					font-size: 0.75rem;
+					font-weight: 600;
+					}
+					.gf-badge.done    { background: #e6f4ea; color: #2e7d32; }
+					.gf-badge.pending { background: #fff3e0; color: #e65100; }
+					.gf-badge.other   { background: #e8eaf6; color: #3949ab; }
+					
+					/* ── Upload area ── */
+					.gf-upload-card {
+					background: white;
+					border-radius: 12px;
+					padding: 20px;
+					box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+					margin-bottom: 16px;
+					}
+					.gf-upload-card h2 {
+					font-size: 1rem;
+					font-weight: 700;
+					margin-bottom: 14px;
+					color: #1a73e8;
+					}
+					
+					.gf-drop-zone {
+					border: 2px dashed #1a73e8;
+					border-radius: 10px;
+					padding: 30px 16px;
+					text-align: center;
+					cursor: pointer;
+					transition: background 0.2s;
+					background: #f8fbff;
+					position: relative;
+					}
+					.gf-drop-zone:hover { background: #edf4ff; }
+					.gf-drop-zone input[type="file"] {
+					position: absolute;
+					inset: 0;
+					opacity: 0;
+					cursor: pointer;
+					width: 100%;
+					height: 100%;
+					}
+					.gf-drop-zone .gf-drop-icon { font-size: 2rem; margin-bottom: 8px; }
+					.gf-drop-zone p { font-size: 0.85rem; color: #555; }
+					.gf-drop-zone small { font-size: 0.75rem; color: #999; }
+					
+					.gf-preview-grid {
+					display: grid;
+					grid-template-columns: repeat(3, 1fr);
+					gap: 8px;
+					margin-top: 12px;
+					}
+					.gf-preview-grid img {
+					width: 100%;
+					aspect-ratio: 1;
+					object-fit: cover;
+					border-radius: 8px;
+					border: 1px solid #ddd;
+					}
+					
+					.gf-btn-submit {
+					display: block;
+					width: 100%;
+					margin-top: 16px;
+					padding: 14px;
+					background: #1a73e8;
+					color: white;
+					border: none;
+					border-radius: 10px;
+					font-size: 1rem;
+					font-weight: 700;
+					cursor: pointer;
+					transition: background 0.2s;
+					}
+					.gf-btn-submit:hover { background: #1558b0; }
+					.gf-btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+					
+					/* ── Imágenes ya subidas ── */
+					.gf-existing-card {
+					background: white;
+					border-radius: 12px;
+					padding: 20px;
+					box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+					}
+					.gf-existing-card h2 {
+					font-size: 1rem;
+					font-weight: 700;
+					margin-bottom: 14px;
+					color: #333;
+					}
+					.gf-img-grid {
+					display: grid;
+					grid-template-columns: repeat(2, 1fr);
+					gap: 10px;
+					}
+					.gf-img-item img {
+					width: 100%;
+					border-radius: 8px;
+					border: 1px solid #eee;
+					display: block;
+					}
+					.gf-img-item small {
+					font-size: 0.7rem;
+					color: #999;
+					display: block;
+					margin-top: 4px;
+					text-align: center;
+					}
+					
+					/* ── Alertas ── */
+					.gf-alert {
+					border-radius: 8px;
+					padding: 12px 16px;
+					font-size: 0.85rem;
+					margin-bottom: 14px;
+					font-weight: 500;
+					}
+					.gf-alert.success { background: #e6f4ea; color: #2e7d32; border-left: 4px solid #2e7d32; }
+					.gf-alert.error   { background: #fdecea; color: #c62828; border-left: 4px solid #c62828; }
+					
+					.gf-empty { text-align: center; color: #bbb; font-size: 0.85rem; padding: 16px 0; }
+					
+					@media (max-width: 400px) {
+					.gf-info-grid { grid-template-columns: 1fr; }
+					.gf-img-grid  { grid-template-columns: 1fr; }
+					.gf-preview-grid { grid-template-columns: repeat(2, 1fr); }
+					}
+				</style>
+			</t>
+			<div class="gf-container">
+				<!-- Header -->
+				<div class="gf-header">
+					<h1>
+						📦 Guía de Remisión Electrónica
+					</h1>
+					<p>
+						Sube las imágenes de la guía firmada
+					</p>
+				</div>
+				<!-- Info de la guía -->
+				<div class="gf-card">
+					<!-- Alertas -->
+					<t t-if="mensaje">
+						<div class="gf-alert success">
+							✅
+							<t t-esc="mensaje" />
+						</div>
+					</t>
+					<t t-if="error">
+						<div class="gf-alert error">
+							⚠️
+							<t t-esc="error" />
+						</div>
+					</t>
+					<div class="gf-info-grid">
+						<div class="gf-info-item">
+							<label>
+								N° Guía
+							</label>
+							<p>
+								<t t-esc="guia.name or '-'" />
+							</p>
+						</div>
+						<div class="gf-info-item">
+							<label>
+								Estado
+							</label>
+							<p>
+								<t t-if="guia.state == 'done'">
+									<span class="gf-badge done">
+										Realizado
+									</span>
+								</t>
+								<t t-elif="guia.state == 'assigned'">
+									<span class="gf-badge pending">
+										Listo para enviar
+									</span>
+								</t>
+								<t t-else="">
+									<span class="gf-badge other">
+										<t t-esc="guia.state" />
+									</span>
+								</t>
+							</p>
+						</div>
+						<div class="gf-info-item">
+							<label>
+								Fecha programada
+							</label>
+							<p>
+								<t t-esc="guia.scheduled_date and guia.scheduled_date.strftime('%d/%m/%Y') or '-'" />
+							</p>
+						</div>
+						<div class="gf-info-item">
+							<label>
+								Fecha registro
+							</label>
+							<p>
+								<t t-esc="guia.fecha_registro and guia.fecha_registro.strftime('%d/%m/%Y') or '-'" />
+							</p>
+						</div>
+						<div class="gf-info-item">
+							<label>
+								Origen
+							</label>
+							<p>
+								<t t-esc="guia.origin or '-'" />
+							</p>
+						</div>
+						<div class="gf-info-item">
+							<label>
+								Destinatario
+							</label>
+							<p>
+								<t t-esc="guia.partner_id.name or '-'" />
+							</p>
+						</div>
+						<t t-if="guia.oc_id">
+							<div class="gf-info-item">
+								<label>
+									OC asociada
+								</label>
+								<p>
+									<t t-esc="guia.oc_id.name or '-'" />
+								</p>
+							</div>
+						</t>
+						<div class="gf-info-item">
+							<label>
+								Imágenes subidas
+							</label>
+							<p>
+								<t t-esc="len(imagenes)" />
+								imagen(es)
+							</p>
+						</div>
+					</div>
+				</div>
+				<!-- Formulario de subida -->
+				<div class="gf-upload-card">
+					<h2>
+						📎 Subir imágenes
+					</h2>
+					<form t-attf-action="/control/guias/add/#{guia.id}/upload" method="POST" enctype="multipart/form-data">
+						<div class="gf-drop-zone" id="dropZone">
+							<input type="file" name="imagenes" id="fileInput" accept="image/*" multiple="multiple" onchange="previewImages(this)" />
+							<div class="gf-drop-icon">
+								📷
+							</div>
+							<p>
+								Toca aquí para seleccionar imágenes
+							</p>
+							<small>
+								JPG, PNG, WEBP — múltiples archivos permitidos
+							</small>
+						</div>
+						<!-- Preview antes de subir -->
+						<div class="gf-preview-grid" id="previewGrid" style="display:none;">
+						</div>
+						<button type="submit" class="gf-btn-submit" id="btnSubir" disabled="disabled">
+							Subir imágenes
+						</button>
+					</form>
+				</div>
+				<!-- Imágenes ya subidas -->
+				<div class="gf-existing-card">
+					<h2>
+						🖼️ Imágenes registradas (
+						<t t-esc="len(imagenes)" />
+						)
+					</h2>
+					<t t-if="imagenes">
+						<div class="gf-img-grid">
+							<t t-foreach="imagenes" t-as="img">
+								<div class="gf-img-item">
+									<a t-attf-href="data:image/png;base64,#{img.imagen}" target="_blank">
+										<img t-attf-src="data:image/png;base64,#{img.imagen}" t-att-alt="img.nombre or 'Guía firmada'" />
+									</a>
+									<small>
+										<t t-esc="img.nombre or 'Sin nombre'" />
+										<t t-if="img.create_date">
+											—
+											<t t-esc="img.create_date.strftime('%d/%m/%Y %H:%M')" />
+										</t>
+									</small>
+								</div>
+							</t>
+						</div>
+					</t>
+					<t t-else="">
+						<p class="gf-empty">
+							Aún no hay imágenes subidas para esta guía.
+						</p>
+					</t>
+				</div>
+			</div>
+			<!-- JS: preview de imágenes antes de subir -->
+			<script>
+				function previewImages(input) {
+				var grid = document.getElementById('previewGrid');
+				var btn  = document.getElementById('btnSubir');
+				grid.innerHTML = '';
+				
+				if (!input.files || input.files.length === 0) {
+				grid.style.display = 'none';
+				btn.disabled = true;
+				return;
+				}
+				
+				grid.style.display = 'grid';
+				btn.disabled = false;
+				
+				Array.from(input.files).forEach(function(file) {
+				var reader = new FileReader();
+				reader.onload = function(e) {
+				var img = document.createElement('img');
+				img.src = e.target.result;
+				grid.appendChild(img);
+				};
+				reader.readAsDataURL(file);
+				});
+				}
+			</script>
+		</t>
+	</template>
+</odoo>

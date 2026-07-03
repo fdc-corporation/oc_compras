@@ -12,11 +12,16 @@ class SaleOrder (models.Model):
     state_factura = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura", copy=False, compute="_compute_state_factura", store=False)
     state_factura_2 = fields.Selection( [("facutrado_parcial", "Facturado parcial"),("facturado", "Facturado")], string="Estados de factura", copy=False)
     fecha_factura = fields.Datetime(string="Fecha de facturacion")
+    state_guia = fields.Selection([("guia_in", "Guia Interna"), ("guia_elect", "Guia electronica")], string="Estado de guia", copy=False)
+
+
 
     def create(self, vals):
         res = super(SaleOrder, self).create(vals)
         if "state_factura" in vals:
             res.state_factura = ''
+        if "state_guia" in vals:
+            res.state_guia = ''
 
         return res
 
@@ -27,6 +32,8 @@ class SaleOrder (models.Model):
             {
                 "oc_id" : False,
                 "state_factura" : False,
+                "state_factura_2" : False,
+                "state_guia" : False,
             }
         )
         return super().copy(default)
@@ -35,6 +42,9 @@ class SaleOrder (models.Model):
     def _compute_state_factura(self):
         for record in self:
             facturas = self.env["account.move"].search([("invoice_origin", "ilike", record.name), ("move_type", "in", ["out_invoice"]), ("state", "=", "posted"), ("edi_state", "=", "sent")])
+            guias = self.env["stock.picking"].search([("sale_id", "=", record.id), ("state", "!=", "cancel"), ("picking_type_code", "=", "outgoing"), ("return_ids", "=", False)])
+            if not guias:
+                record.state_guia = False
             if not facturas:
                 record.state_factura = False
                 record.state_factura_2 = False
@@ -47,6 +57,14 @@ class SaleOrder (models.Model):
             elif facturas and total_venta > total_facturado:
                 record.state_factura = "facutrado_parcial"
                 record.state_factura_2 = "facutrado_parcial"
+            elif guias:
+                
+                if any(line.l10n_pe_edi_ticket_number for line in guias):
+                    record.state_guia = "guia_elect"
+                else: 
+                    record.state_guia = "guia_in"
+
+
 
     def action_confirm(self):
         res = super(SaleOrder, self).action_confirm()

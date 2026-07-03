@@ -35,6 +35,7 @@
         'view/web/portal_template.xml',
         'view/web/template_ordenes_compra.xml',
         'view/guias/action_guias_vieew.xml',
+        'view/web/portal_guias_firmadas.xml',
         # TEMPLATE DE EMAIL
         'view/email/template_email_oc.xml',
         'view/sale/form_sale_order.xml',

@@ -4,6 +4,77 @@
     <data>
 
 
+        <record id="view-fields_guias" model="ir.ui.view">
+            <field name="name">stock.picking.view.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='pe_edi']" position="after">
+                    <page name="pe_guias_firmada" string="Guias Firmadas">
+                        <group>
+                            <field name="fecha_registro"/>
+                        </group>
+                            <group>
+        <field name="guia_firmada_ids"
+               widget="one2many"
+               mode="kanban"
+               context="{'kanban_view_ref': 'tu_modulo.view_guia_imagen_kanban'}"
+               nolabel="1">
+            <kanban>
+                <field name="imagen"/>
+                <field name="nombre"/>
+                <field name="create_date"/>
+                <templates>
+                    <t t-name="card">
+                        <div style="
+                            width: 120px;
+                            text-align: center;
+                            padding: 6px;
+                            border: 1px solid #e0e0e0;
+                            border-radius: 8px;
+                            background: #fff;
+                            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+                        ">
+                            <a t-attf-href="data:image/png;base64,#{record.imagen.raw_value}"
+                               t-att-download="record.nombre.raw_value or 'guia_firmada.png'"
+                               target="_blank">
+                                <img
+                                    t-attf-src="data:image/png;base64,#{record.imagen.raw_value}"
+                                    style="
+                                        width: 100%;
+                                        height: 100px;
+                                        object-fit: cover;
+                                        border-radius: 6px;
+                                        display: block;
+                                    "
+                                    alt="Guía firmada"
+                                />
+                            </a>
+                            <div style="font-size: 10px; color: #666; margin-top: 5px;
+                                        white-space: nowrap; overflow: hidden;
+                                        text-overflow: ellipsis;">
+                                <t t-esc="record.nombre.raw_value or 'Sin nombre'"/>
+                            </div>
+                            <a t-attf-href="data:image/png;base64,#{record.imagen.raw_value}"
+                               t-att-download="record.nombre.raw_value or 'guia_firmada.png'"
+                               style="display:inline-block; margin-top:6px; font-size:10px;
+                                      background:#1a73e8; color:white; padding:2px 8px;
+                                      border-radius:4px; text-decoration:none;">
+                                ⬇ Descargar
+                            </a>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </group>
+
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+
         <!-- <record id="inheroit_guias-electronicas" model="ir.ui.view">
             <field name="name">stock.picking.view.tree.inherit</field>
             <field name="model">stock.picking</field>
