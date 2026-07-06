@@ -20,6 +20,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state']" position="after">
                 <field name="state_factura" widget="badge" />
+                <field name="state_guia" widget="badge" />
             </xpath>
         </field>
     </record>
