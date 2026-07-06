@@ -21,6 +21,7 @@ class StockPickingGuiaImagen(models.Model):
     imagen = fields.Binary(string="Imagen", required=True)
     nombre = fields.Char(string="Nombre de archivo")
     create_date = fields.Datetime(string="Fecha de subida", readonly=True)
+    
 class InventarioOC(models.Model):
     _inherit = "stock.picking"
 
