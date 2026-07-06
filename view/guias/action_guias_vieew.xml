@@ -13,6 +13,7 @@
                     <page name="pe_guias_firmada" string="Guias Firmadas">
                         <group>
                             <field name="fecha_registro"/>
+                            <field name="qr_guia" widget="image" invisible="1"/>
                         </group>
                             <group>
         <field name="guia_firmada_ids"
