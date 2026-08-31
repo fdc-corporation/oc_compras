@@ -594,5 +594,5 @@ class OrdenCompras(models.Model):
                             self.validar_ot_mantenimiento(coti)
 
                     # --- OTS sin entregas ni factura ---
-                    if not entregas and not factura and coti.ots:
+                    if coti.ots:
                         self.validar_ot_mantenimiento(coti)
