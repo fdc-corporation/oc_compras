@@ -398,6 +398,7 @@ class OrdenCompras(models.Model):
                     "oc_compras.estado_facturado", raise_if_not_found=False
                 )
                 record.state = estado.id
+                record.ot_servicio._oc_register_service_billed()
 
     @api.depends("oc")
     def _compute_oc_existente(self):
@@ -465,16 +466,12 @@ class OrdenCompras(models.Model):
             factura = self.env["account.move"].search(
                 [("invoice_origin", "=", coti.name), ("state", "=", "posted")], limit=1
             )
-            state_fac = self.env["maintenance.stage"].search(
-                [("is_finalizado", "=", True)], limit=1
-            )
             print("DATOS DE MANTEWNIMEINTO OC ------------------------->")
             print(orden_trabajo)
             print(orden_trabajo.name)
             print(coti.name)
             print(coti.ots)
             print(coti.ots.oc_id)
-            print(state_fac.name)
             coti.ots.oc_id = record.id
 
             if orden_trabajo:
@@ -484,8 +481,7 @@ class OrdenCompras(models.Model):
                 )
                 record.state = estado.id
                 if factura:
-                    orden_trabajo.stage_id = state_fac.id
-                    orden_trabajo.factura = factura.id
+                    orden_trabajo._oc_register_service_billed(invoice=factura)
 
     def action_update_data(self):
         for record in self:

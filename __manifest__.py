@@ -1,6 +1,6 @@
 {
     'name': 'Gestor de Órdenes de Compras',
-    'version': '1.0',
+    'version': '19.0.1.1.0',
     'description': 'Gestor de órdenes de compras para facilitar la administración y control de procesos.',
     'summary': 'Módulo para gestión avanzada de órdenes de compra.',
     'author': 'Yostin Palacios',

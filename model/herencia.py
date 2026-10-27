@@ -150,8 +150,9 @@ class FacturaOC(models.Model):
                     sale.state_factura = "facturado"
                 ot = self.env['maintenance.request'].search([
                     ("tarea", "=", sale.ots.id)
-                ], limit=1)
-                ot.factura = self.id
+                ]) if sale.ots else self.env['maintenance.request']
+                if ot and "factura" in ot._fields:
+                    ot.sudo().write({"factura": record.id})
                 sale.fecha_factura = fields.Datetime.now()
 
                 # Mantener tu lógica de OC
@@ -161,17 +162,9 @@ class FacturaOC(models.Model):
                     if estado:
                         sale.oc_id.state = estado.id
 
-                # Mantener tu lógica de OT
-                if sale.ots:
-                    orden_trabajo = self.env['maintenance.request'].search([
-                        ("tarea", "=", sale.ots.id)
-                    ], limit=1)
-                    if orden_trabajo:
-                        state_fac = self.env['maintenance.stage'].search([
-                            ("is_finalizado", "=", True)
-                        ], limit=1)
-                        if state_fac:
-                            orden_trabajo.stage_id = state_fac.id
+                # La facturación total solo cierra la OT cuando ya existe el acta PDF.
+                if ot and sale.state_factura == "facturado":
+                    ot._oc_register_service_billed(invoice=record)
 
         return result
 
@@ -388,6 +381,91 @@ class OTS(models.Model):
     )
     oc_cliente = fields.Char(related="order_compra.oc", store=True)
     not_oc = fields.Boolean(string="No tiene OC?")
+    oc_service_billed = fields.Boolean(
+        string="Servicio facturado", copy=False, readonly=True, index=True
+    )
+    oc_acta_pending_notified = fields.Boolean(
+        string="Aviso de acta pendiente enviado", copy=False, readonly=True
+    )
+
+    def _oc_final_stage(self):
+        """Devuelve la etapa oficial de cierre de PMANT."""
+        return self.env["maintenance.stage"].search(
+            [("pmant_code", "=", "done")], limit=1
+        ) or self.env["maintenance.stage"].search(
+            [("is_finalizado", "=", True)], limit=1
+        )
+
+    def _oc_billing_stage(self):
+        return self.env["maintenance.stage"].search(
+            [("pmant_code", "=", "billing_hes")], limit=1
+        )
+
+    def _oc_register_service_billed(self, invoice=False):
+        """Registra la factura y aplica el cierre condicionado por el acta."""
+        notifier = self.env["pmant.notification"]
+        activity_type = self.env.ref(
+            "mail.mail_activity_data_todo", raise_if_not_found=False
+        )
+        for order in self.exists():
+            values = {"oc_service_billed": True}
+            if invoice and "factura" in order._fields:
+                values["factura"] = invoice.id
+            order.sudo().write(values)
+
+            if order.conformity_pdf_attachment_id:
+                final_stage = order._oc_final_stage()
+                if final_stage and order.stage_id != final_stage:
+                    order.sudo().write({"stage_id": final_stage.id})
+                order.sudo().oc_acta_pending_notified = False
+                continue
+
+            billing_stage = order._oc_billing_stage()
+            if billing_stage and order.stage_id != billing_stage:
+                order.sudo().write({"stage_id": billing_stage.id})
+            if order.oc_acta_pending_notified:
+                continue
+
+            planner = order.create_uid.filtered(lambda user: user.active and not user.share)
+            if not planner:
+                planner = notifier.pmant_planner_users()
+            notifier.notify_users(
+                planner,
+                _("OT facturada con acta pendiente"),
+                _(
+                    "La orden %(order)s ya fue facturada. Cargue el acta de "
+                    "conformidad firmada en PDF para que pase a Finalizado.",
+                    order=order.display_name,
+                ),
+                notification_type="warning",
+                sticky=True,
+                record=order,
+            )
+            if activity_type:
+                for user in planner:
+                    order.activity_schedule(
+                        activity_type_id=activity_type.id,
+                        user_id=user.id,
+                        summary=_("Cargar acta firmada de OT facturada"),
+                        note=_(
+                            "El servicio ya fue facturado. Falta cargar el acta "
+                            "de conformidad firmada en PDF para finalizar la OT."
+                        ),
+                    )
+            order.message_post(
+                body=_(
+                    "El servicio fue facturado, pero la OT permanece en Por "
+                    "facturar - HES hasta recibir el acta firmada en PDF."
+                )
+            )
+            order.sudo().oc_acta_pending_notified = True
+        return True
+
+    def _receive_conformity_pdf(self, filename, content):
+        attachment = super()._receive_conformity_pdf(filename, content)
+        if self.oc_service_billed:
+            self._oc_register_service_billed(invoice=self.factura)
+        return attachment
 
     @api.model
     def create(self, vals):
